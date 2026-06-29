@@ -60,6 +60,26 @@ legend {
   min-width: 0;
 }
 
+.shortcut-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.shortcut-fields .field {
+  margin-bottom: 0;
+}
+
+kbd {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+  background: #f8f8f8;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
 input,
 select,
 button {
@@ -160,6 +180,11 @@ button:disabled {
 
   .hint {
     color: #aaa;
+  }
+
+  kbd {
+    background: #333;
+    border-color: #555;
   }
 
   #save-btn {

@@ -9,21 +9,20 @@ use tauri::{
 use crate::clip::service::clip_from_config;
 use crate::config::AppConfig;
 use crate::platform;
+use crate::tray_icons::TrayIcons;
+use crate::AppState;
 
 pub const TRAY_ID: &str = "main";
-const DEFAULT_TOOLTIP: &str = "Obsclip";
 
-pub fn setup_tray(app: &App) -> tauri::Result<()> {
+pub fn setup_tray(app: &App, icons: &TrayIcons) -> tauri::Result<()> {
     let handle = app.handle();
     let clip = MenuItem::with_id(handle, "clip", "Clip to daily note", true, None::<&str>)?;
     let settings = MenuItem::with_id(handle, "settings", "Settings…", true, None::<&str>)?;
     let quit = MenuItem::with_id(handle, "quit", "Quit", true, None::<&str>)?;
     let menu = Menu::with_items(handle, &[&clip, &settings, &quit])?;
 
-    let icon = tauri::include_image!("icons/icon.png");
     let _tray = TrayIconBuilder::with_id(TRAY_ID)
-        .icon(icon)
-        .tooltip(DEFAULT_TOOLTIP)
+        .icon(icons.default.clone())
         .menu(&menu)
         .on_menu_event(|app, event| match event.id.as_ref() {
             "clip" => handle_clip(app),
@@ -62,27 +61,58 @@ fn show_settings(app: &AppHandle) {
     }
 }
 
-fn flash_tray_tooltip(app: &AppHandle, message: &str) {
-    let Some(tray) = app.tray_by_id(TRAY_ID) else {
-        return;
-    };
-    let _ = tray.set_tooltip(Some(message));
-    let app = app.clone();
-    std::thread::spawn(move || {
-        std::thread::sleep(Duration::from_millis(1500));
-        let app_handle = app.clone();
-        let _ = app.run_on_main_thread(move || {
-            if let Some(tray) = app_handle.tray_by_id(TRAY_ID) {
-                let _ = tray.set_tooltip(Some(DEFAULT_TOOLTIP));
-            }
+enum FlashKind {
+    Success,
+    Error,
+}
+
+fn flash_tray(app: &AppHandle, kind: FlashKind) {
+    let icons = app.state::<AppState>().tray_icons.clone();
+    let app_for_flash = app.clone();
+    let icons_for_flash = icons.clone();
+    let _ = app.run_on_main_thread(move || {
+        apply_flash(&app_for_flash, &icons_for_flash, kind);
+
+        let app_for_restore = app_for_flash.clone();
+        let icons_for_restore = icons_for_flash.clone();
+        std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(1800));
+            let app = app_for_restore.clone();
+            let _ = app_for_restore.run_on_main_thread(move || {
+                restore_tray(&app, &icons_for_restore);
+            });
         });
     });
 }
 
+fn apply_flash(app: &AppHandle, icons: &TrayIcons, kind: FlashKind) {
+    let Some(tray) = app.tray_by_id(TRAY_ID) else {
+        eprintln!("Tray icon not found for flash feedback");
+        return;
+    };
+
+    let icon = match kind {
+        FlashKind::Success => &icons.success,
+        FlashKind::Error => &icons.error,
+    };
+
+    if let Err(error) = tray.set_icon(Some(icon.clone())) {
+        eprintln!("Failed to set tray flash icon: {error}");
+    }
+}
+
+fn restore_tray(app: &AppHandle, icons: &TrayIcons) {
+    let Some(tray) = app.tray_by_id(TRAY_ID) else {
+        return;
+    };
+
+    let _ = tray.set_icon(Some(icons.default.clone()));
+}
+
 pub fn flash_tray_success(app: &AppHandle) {
-    flash_tray_tooltip(app, "✓ Clipped");
+    flash_tray(app, FlashKind::Success);
 }
 
 pub fn flash_tray_error(app: &AppHandle) {
-    flash_tray_tooltip(app, "✗ Error");
+    flash_tray(app, FlashKind::Error);
 }

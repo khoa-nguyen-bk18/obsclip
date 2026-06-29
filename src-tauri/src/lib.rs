@@ -3,6 +3,7 @@ pub mod clipboard;
 pub mod config;
 pub mod platform;
 pub mod tray;
+pub mod tray_icons;
 pub mod vault;
 
 use std::sync::Mutex;
@@ -12,9 +13,11 @@ use platform::obsclip_config_path;
 use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
+use tray_icons::TrayIcons;
 
 pub struct AppState {
     pub config: Mutex<AppConfig>,
+    pub tray_icons: TrayIcons,
 }
 
 #[tauri::command]
@@ -75,10 +78,12 @@ fn rebind_shortcut(app: &AppHandle, old_shortcut: &str, new_shortcut: &str) -> R
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let config = AppConfig::load(&obsclip_config_path()).expect("failed to load config");
+    let tray_icons = TrayIcons::new();
 
     tauri::Builder::default()
         .manage(AppState {
             config: Mutex::new(config.clone()),
+            tray_icons: tray_icons.clone(),
         })
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
@@ -92,7 +97,7 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
-            tray::setup_tray(app)?;
+            tray::setup_tray(app, &tray_icons)?;
 
             let shortcut = config.shortcut.clone();
             let app_handle = app.handle().clone();

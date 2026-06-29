@@ -35,16 +35,31 @@
 
         <fieldset>
           <legend>Global shortcut</legend>
-          <label class="field">
-            <span>Shortcut</span>
-            <input
-              id="shortcut"
-              type="text"
-              placeholder="CommandOrControl+Shift+KeyV"
-              autocomplete="off"
-            />
-          </label>
-          <p class="hint">Tauri format (e.g. CommandOrControl+Shift+KeyV). Save to apply.</p>
+          <div class="shortcut-fields">
+            <label class="field">
+              <span>Modifier</span>
+              <select id="shortcut-primary">
+                <option value="CommandOrControl">⌘ Command / Ctrl</option>
+                <option value="Alt">⌥ Option / Alt</option>
+                <option value="None">None</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Extra</span>
+              <select id="shortcut-secondary">
+                <option value="None">None</option>
+                <option value="Shift">⇧ Shift</option>
+                <option value="Alt">⌥ Option / Alt</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Key</span>
+              <select id="shortcut-key"></select>
+            </label>
+          </div>
+          <p class="hint">
+            Preview: <kbd id="shortcut-preview">⌘⇧V</kbd>
+          </p>
         </fieldset>
 
         <fieldset>
