@@ -35,3 +35,7 @@ path = "tests/platform.rs"
 [[test]]
 name = "vault_resolver"
 path = "tests/vault_resolver.rs"
+
+[[test]]
+name = "obsidian_config"
+path = "tests/obsidian_config.rs"
