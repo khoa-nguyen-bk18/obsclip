@@ -29,6 +29,9 @@ serde_json = "1"
 thiserror = "1"
 dirs = "5"
 
+[dev-dependencies]
+tempfile = "3"
+
 [[test]]
 name = "platform"
 path = "tests/platform.rs"
@@ -56,3 +59,7 @@ path = "tests/formatter.rs"
 [[test]]
 name = "image"
 path = "tests/image.rs"
+
+[[test]]
+name = "clip_service"
+path = "tests/clip_service.rs"
