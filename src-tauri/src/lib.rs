@@ -89,6 +89,9 @@ pub fn run() {
             pick_vault_folder
         ])
         .setup(move |app| {
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
             tray::setup_tray(app)?;
 
             let shortcut = config.shortcut.clone();
