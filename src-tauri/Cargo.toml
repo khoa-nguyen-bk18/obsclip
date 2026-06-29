@@ -47,3 +47,7 @@ path = "tests/date_format.rs"
 [[test]]
 name = "daily_note"
 path = "tests/daily_note.rs"
+
+[[test]]
+name = "formatter"
+path = "tests/formatter.rs"
