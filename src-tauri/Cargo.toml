@@ -43,3 +43,7 @@ path = "tests/obsidian_config.rs"
 [[test]]
 name = "date_format"
 path = "tests/date_format.rs"
+
+[[test]]
+name = "daily_note"
+path = "tests/daily_note.rs"
