@@ -9,10 +9,67 @@ use std::sync::Mutex;
 
 use config::AppConfig;
 use platform::obsclip_config_path;
+use tauri::AppHandle;
+use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
 pub struct AppState {
     pub config: Mutex<AppConfig>,
+}
+
+#[tauri::command]
+fn get_config(state: tauri::State<AppState>) -> AppConfig {
+    state.config.lock().unwrap().clone()
+}
+
+#[tauri::command]
+fn save_config(
+    app: AppHandle,
+    state: tauri::State<AppState>,
+    config: AppConfig,
+) -> Result<(), String> {
+    let old_shortcut = state.config.lock().unwrap().shortcut.clone();
+    config
+        .save(&obsclip_config_path())
+        .map_err(|e| e.to_string())?;
+    *state.config.lock().unwrap() = config.clone();
+    rebind_shortcut(&app, &old_shortcut, &config.shortcut)?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn pick_vault_folder(app: AppHandle) -> Option<String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        app.dialog()
+            .file()
+            .blocking_pick_folder()
+            .map(|p| p.to_string())
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+fn rebind_shortcut(app: &AppHandle, old_shortcut: &str, new_shortcut: &str) -> Result<(), String> {
+    if old_shortcut == new_shortcut {
+        return Ok(());
+    }
+
+    let gs = app.global_shortcut();
+    if gs.is_registered(old_shortcut) {
+        gs.unregister(old_shortcut)
+            .map_err(|e| e.to_string())?;
+    }
+
+    let app_handle = app.clone();
+    gs.on_shortcut(new_shortcut, move |_app, _shortcut, event| {
+        if event.state == ShortcutState::Pressed {
+            tray::handle_clip(&app_handle);
+        }
+    })
+    .map_err(|e| e.to_string())?;
+
+    Ok(())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -24,7 +81,13 @@ pub fn run() {
             config: Mutex::new(config.clone()),
         })
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .invoke_handler(tauri::generate_handler![
+            get_config,
+            save_config,
+            pick_vault_folder
+        ])
         .setup(move |app| {
             tray::setup_tray(app)?;
 
@@ -33,10 +96,10 @@ pub fn run() {
             app.handle()
                 .global_shortcut()
                 .on_shortcut(shortcut.as_str(), move |_app, _shortcut, event| {
-                if event.state == ShortcutState::Pressed {
-                    tray::handle_clip(&app_handle);
-                }
-            })?;
+                    if event.state == ShortcutState::Pressed {
+                        tray::handle_clip(&app_handle);
+                    }
+                })?;
 
             Ok(())
         })
