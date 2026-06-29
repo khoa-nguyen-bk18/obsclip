@@ -39,3 +39,7 @@ path = "tests/vault_resolver.rs"
 [[test]]
 name = "obsidian_config"
 path = "tests/obsidian_config.rs"
+
+[[test]]
+name = "date_format"
+path = "tests/date_format.rs"
