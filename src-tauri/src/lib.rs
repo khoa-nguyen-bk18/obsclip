@@ -1,5 +1,6 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 pub mod clip;
+pub mod clipboard;
 pub mod config;
 pub mod platform;
 pub mod vault;
