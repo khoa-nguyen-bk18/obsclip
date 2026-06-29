@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Obsclip Tray</title>
+    <style>
+      body {
+        margin: 0;
+        width: 520px;
+        height: 220px;
+        background: linear-gradient(#e8e8e8, #d0d0d0);
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      .menubar {
+        height: 28px;
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0 12px;
+        gap: 10px;
+        color: #222;
+        font-size: 13px;
+      }
+      .tray-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        background: center / contain no-repeat url("../../src-tauri/icons/icon.png");
+        position: relative;
+      }
+      .tray-icon.success {
+        filter: hue-rotate(70deg) saturate(2.2) brightness(1.05);
+      }
+      .menu {
+        position: absolute;
+        top: 34px;
+        right: 12px;
+        width: 220px;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+        padding: 6px 0;
+        font-size: 13px;
+        color: #111;
+      }
+      .menu-item {
+        padding: 6px 16px;
+      }
+      .menu-item:hover {
+        background: #2f6feb;
+        color: #fff;
+      }
+      .menu-sep {
+        height: 1px;
+        background: rgba(0, 0, 0, 0.08);
+        margin: 6px 0;
+      }
+      .caption {
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+        font-size: 12px;
+        color: #444;
+      }
+      .icons {
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-size: 11px;
+        color: #444;
+      }
+      .icons span { text-align: center; }
+      .mini {
+        width: 18px;
+        height: 18px;
+        display: block;
+        margin: 0 auto 4px;
+        background: center / contain no-repeat url("../../src-tauri/icons/icon.png");
+        border-radius: 4px;
+      }
+      .mini.success { filter: hue-rotate(70deg) saturate(2.2) brightness(1.05); }
+      .mini.error { filter: hue-rotate(320deg) saturate(2.4) brightness(0.95); }
+    </style>
+  </head>
+  <body>
+    <div class="menubar">
+      <span>Wi-Fi</span>
+      <span>🔋</span>
+      <div class="tray-icon"></div>
+    </div>
+    <div class="menu">
+      <div class="menu-item">Clip to daily note</div>
+      <div class="menu-item">Settings…</div>
+      <div class="menu-sep"></div>
+      <div class="menu-item">Quit</div>
+    </div>
+    <div class="caption">Menu bar tray — no Dock icon</div>
+    <div class="icons">
+      <span><i class="mini"></i>Default</span>
+      <span><i class="mini success"></i>Success</span>
+      <span><i class="mini error"></i>Error</span>
+    </div>
+  </body>
+</html>

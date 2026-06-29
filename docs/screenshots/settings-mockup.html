@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Obsclip Settings</title>
+    <style>
+      :root {
+        font-family: Inter, system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+        color: #1a1a1a;
+        background: #f5f5f5;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; width: 420px; }
+      .settings { padding: 1.25rem; }
+      h1 { margin: 0 0 1rem; font-size: 1.25rem; font-weight: 600; }
+      fieldset {
+        margin: 0 0 1rem;
+        padding: 0.75rem;
+        border: 1px solid #d8d8d8;
+        border-radius: 8px;
+        background: #fff;
+      }
+      legend { padding: 0 0.25rem; font-weight: 600; }
+      .field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.75rem; }
+      .field:last-child { margin-bottom: 0; }
+      .row { display: flex; gap: 0.5rem; }
+      .row input { flex: 1; min-width: 0; }
+      .shortcut-fields {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+      .shortcut-fields .field { margin-bottom: 0; }
+      input, select, button {
+        font: inherit;
+        border-radius: 6px;
+        border: 1px solid #c8c8c8;
+        padding: 0.45rem 0.6rem;
+        background: #fff;
+      }
+      input:disabled { color: #888; background: #f0f0f0; }
+      button { cursor: default; white-space: nowrap; }
+      .checkbox { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; }
+      .checkbox input { width: auto; margin: 0; }
+      .hint { margin: 0.35rem 0 0; color: #666; font-size: 0.85rem; }
+      kbd {
+        display: inline-block;
+        padding: 0.15rem 0.45rem;
+        border: 1px solid #c8c8c8;
+        border-radius: 4px;
+        background: #f8f8f8;
+        font-family: inherit;
+        font-size: 0.95rem;
+      }
+      .actions { display: flex; align-items: center; gap: 0.75rem; }
+      #save-btn {
+        background: #2f6feb;
+        border-color: #2f6feb;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="settings">
+      <h1>Obsclip Settings</h1>
+      <fieldset>
+        <legend>Vault</legend>
+        <label class="field">
+          <span>Vault path</span>
+          <div class="row">
+            <input type="text" disabled placeholder="Uses Obsidian default when empty" />
+            <button type="button" disabled>Browse</button>
+          </div>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" checked />
+          Use Obsidian default
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Global shortcut</legend>
+        <div class="shortcut-fields">
+          <label class="field">
+            <span>Modifier</span>
+            <select><option selected>⌘ Command / Ctrl</option></select>
+          </label>
+          <label class="field">
+            <span>Extra</span>
+            <select><option>None</option><option selected>⇧ Shift</option></select>
+          </label>
+          <label class="field">
+            <span>Key</span>
+            <select><option selected>V</option></select>
+          </label>
+        </div>
+        <p class="hint">Preview: <kbd>⌘⇧V</kbd></p>
+      </fieldset>
+      <fieldset>
+        <legend>Text format</legend>
+        <label class="field">
+          <span>Format</span>
+          <select><option selected>Timestamped</option></select>
+        </label>
+      </fieldset>
+      <div class="actions">
+        <button type="button" id="save-btn">Save</button>
+      </div>
+    </main>
+  </body>
+</html>

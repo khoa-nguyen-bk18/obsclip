@@ -44,4 +44,28 @@ mod tests {
         assert_ne!(icons.default.rgba(), icons.success.rgba());
         assert_ne!(icons.default.rgba(), icons.error.rgba());
     }
+
+    /// Run once to refresh README screenshots:
+    /// `cargo test -p obsclip export_readme_icons -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn export_readme_icons() {
+        let icons = TrayIcons::new();
+        let out_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../docs/screenshots");
+        std::fs::create_dir_all(&out_dir).unwrap();
+        write_icon(&icons.default, &out_dir.join("tray-default.png"));
+        write_icon(&icons.success, &out_dir.join("tray-success.png"));
+        write_icon(&icons.error, &out_dir.join("tray-error.png"));
+    }
+
+    fn write_icon(icon: &Image<'static>, path: &std::path::Path) {
+        use image::{ImageBuffer, Rgba};
+        let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(
+            icon.width(),
+            icon.height(),
+            icon.rgba().to_vec(),
+        )
+        .expect("icon rgba");
+        buffer.save(path).expect("save icon png");
+    }
 }
