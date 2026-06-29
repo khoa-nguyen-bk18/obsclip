@@ -1,0 +1,10 @@
+{
+  "vaults": {
+    "abc123": {
+      "path": "/Users/test/MyVault",
+      "ts": 1,
+      "open": true
+    }
+  },
+  "last_open": "abc123"
+}

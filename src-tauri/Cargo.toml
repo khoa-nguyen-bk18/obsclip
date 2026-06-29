@@ -31,3 +31,7 @@ dirs = "5"
 [[test]]
 name = "platform"
 path = "tests/platform.rs"
+
+[[test]]
+name = "vault_resolver"
+path = "tests/vault_resolver.rs"
