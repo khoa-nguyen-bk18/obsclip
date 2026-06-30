@@ -93,12 +93,14 @@ pub fn run() {
             save_config,
             pick_vault_folder
         ])
+        .on_window_event(|window, event| {
+            tray::handle_settings_window_event(window, event);
+        })
         .setup(move |app| {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
             tray::setup_tray(app, &tray_icons)?;
-            tray::setup_settings_window(app)?;
 
             let shortcut = config.shortcut.clone();
             let app_handle = app.handle().clone();

@@ -3,7 +3,7 @@ use std::time::Duration;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
-    App, AppHandle, Manager, WindowEvent,
+    App, AppHandle, Manager, Window, WindowEvent,
 };
 
 use crate::clip::service::clip_from_config;
@@ -13,6 +13,7 @@ use crate::tray_icons::TrayIcons;
 use crate::AppState;
 
 pub const TRAY_ID: &str = "main";
+pub const SETTINGS_WINDOW_LABEL: &str = "settings";
 
 pub fn setup_tray(app: &App, icons: &TrayIcons) -> tauri::Result<()> {
     let handle = app.handle();
@@ -35,18 +36,16 @@ pub fn setup_tray(app: &App, icons: &TrayIcons) -> tauri::Result<()> {
     Ok(())
 }
 
-pub fn setup_settings_window(app: &App) -> tauri::Result<()> {
-    if let Some(settings) = app.get_webview_window("settings") {
-        let settings_window = settings.clone();
-        settings.on_window_event(move |event| {
-            if let WindowEvent::CloseRequested { api, .. } = event {
-                api.prevent_close();
-                let _ = settings_window.hide();
-            }
-        });
+/// Hide the settings window on close instead of destroying it.
+pub fn handle_settings_window_event(window: &Window, event: &WindowEvent) {
+    if window.label() != SETTINGS_WINDOW_LABEL {
+        return;
     }
 
-    Ok(())
+    if let WindowEvent::CloseRequested { api, .. } = event {
+        api.prevent_close();
+        let _ = window.hide();
+    }
 }
 
 pub fn handle_clip(app: &AppHandle) {
@@ -69,7 +68,7 @@ pub fn handle_clip(app: &AppHandle) {
 }
 
 fn show_settings(app: &AppHandle) {
-    if let Some(window) = app.get_webview_window("settings") {
+    if let Some(window) = app.get_webview_window(SETTINGS_WINDOW_LABEL) {
         let _ = window.show();
         let _ = window.set_focus();
     }
