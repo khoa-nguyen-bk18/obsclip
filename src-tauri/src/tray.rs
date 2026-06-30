@@ -3,7 +3,7 @@ use std::time::Duration;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
-    App, AppHandle, Manager,
+    App, AppHandle, Manager, WindowEvent,
 };
 
 use crate::clip::service::clip_from_config;
@@ -31,6 +31,20 @@ pub fn setup_tray(app: &App, icons: &TrayIcons) -> tauri::Result<()> {
             _ => {}
         })
         .build(app)?;
+
+    Ok(())
+}
+
+pub fn setup_settings_window(app: &App) -> tauri::Result<()> {
+    if let Some(settings) = app.get_webview_window("settings") {
+        let settings_window = settings.clone();
+        settings.on_window_event(move |event| {
+            if let WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                let _ = settings_window.hide();
+            }
+        });
+    }
 
     Ok(())
 }

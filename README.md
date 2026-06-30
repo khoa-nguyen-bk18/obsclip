@@ -20,28 +20,118 @@ Obsclip is a small menu-bar / system-tray utility that appends your current clip
 
 > **Linux** is planned for v1.1. Platform paths are abstracted, but Linux is not supported yet.
 
-## Install
+## Build from source
 
-### macOS (release build)
+Obsclip is not distributed as pre-built installers. Clone the repo, install the prerequisites for your OS, then build locally.
+
+### Prerequisites
+
+Install these before building:
+
+| Tool | macOS | Windows |
+|------|-------|---------|
+| [Node.js LTS](https://nodejs.org/) | ✅ | ✅ |
+| [Rust](https://rustup.rs/) (`rustup`) | ✅ | ✅ |
+| Xcode Command Line Tools (`xcode-select --install`) | ✅ | — |
+| [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with **Desktop development with C++** | — | ✅ |
+| [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) | — | ✅ |
+
+See the [Tauri prerequisites guide](https://v2.tauri.app/start/prerequisites/) if anything is missing.
+
+#### Windows setup (one time)
+
+1. **Node.js LTS** — download from [nodejs.org](https://nodejs.org/) and install. Restart PowerShell, then check:
+   ```powershell
+   node -v
+   npm -v
+   ```
+2. **Rust** — download and run [rustup-init.exe](https://rustup.rs/), accept defaults, then restart PowerShell:
+   ```powershell
+   rustc -V
+   cargo -V
+   ```
+3. **Microsoft C++ Build Tools** — install [Build Tools for Visual Studio](https://visualstudio.microsoft.com/visual-cpp-build-tools/), check **Desktop development with C++**, finish install, restart if prompted.
+4. **WebView2 Runtime** — install the [Evergreen Bootstrapper](https://developer.microsoft.com/en-us/microsoft-edge/webview2/#download-section) if it is not already on your system (Windows 11 usually has it).
+
+Open **PowerShell** or **Developer PowerShell for VS** for the build steps below.
+
+### macOS
 
 ```bash
+git clone https://github.com/khoa-nguyen-bk18/obsclip.git
+cd obsclip
 npm install
 npm run tauri build -- --bundles dmg
 ```
 
-Open `src-tauri/target/release/bundle/dmg/Obsclip_0.1.0_aarch64.dmg`, drag **Obsclip** to **Applications**, then launch it.
+**Install:** open the DMG under `src-tauri/target/release/bundle/dmg/` (name includes your version and CPU, e.g. `Obsclip_0.1.0_aarch64.dmg`), drag **Obsclip** to **Applications**, then launch it.
 
-If macOS blocks the unsigned app:
+**Apple Silicon + Intel:** on Apple Silicon, the default build is `aarch64`. For a universal binary:
+
+```bash
+rustup target add x86_64-apple-darwin
+npm run tauri build -- --target universal-apple-darwin --bundles dmg
+```
+
+**Unsigned app:** macOS may block the app because it is not notarized. Either right-click **Obsclip** → **Open** → **Open** again, or run:
 
 ```bash
 xattr -cr /Applications/Obsclip.app
 ```
 
-Or right-click the app → **Open** → **Open** again.
+### Windows
+
+From PowerShell:
+
+```powershell
+git clone https://github.com/khoa-nguyen-bk18/obsclip.git
+cd obsclip
+npm install
+npm run tauri build -- --bundles msi
+```
+
+The first build can take several minutes while Rust compiles dependencies.
+
+**Install:** run the MSI installer:
+
+```
+src-tauri\target\release\bundle\msi\Obsclip_0.1.0_x64_en-US.msi
+```
+
+(File name includes your version from `src-tauri/tauri.conf.json`.)
+
+**Portable `.exe` installer** (no MSI):
+
+```powershell
+npm run tauri build -- --bundles nsis
+```
+
+Output: `src-tauri\target\release\bundle\nsis\`.
+
+**Run without installing:** after any release build, the app binary is also at:
+
+```
+src-tauri\target\release\obsclip.exe
+```
+
+**MSI build fails (`light.exe` / VBSCRIPT):** enable **VBSCRIPT** under **Settings → Apps → Optional features → More Windows features**, then rebuild.
+
+**SmartScreen:** unsigned builds may show “Windows protected your PC”. Click **More info** → **Run anyway**, or sign the installer with your own code signing certificate.
 
 ### Development
 
+Run the app with hot reload while you work on it.
+
+macOS / Linux:
+
 ```bash
+npm install
+npm run tauri dev
+```
+
+Windows (PowerShell):
+
+```powershell
 npm install
 npm run tauri dev
 ```
@@ -102,7 +192,9 @@ Image saved to your configured attachment folder (e.g. `attachments/clip-2026-06
 Obsclip resolves the vault in this order:
 
 1. Manual path from settings (if set)
-2. `last_open` in `~/Library/Application Support/obsidian/obsidian.json` (macOS)
+2. `last_open` in Obsidian config:
+   - macOS: `~/Library/Application Support/obsidian/obsidian.json`
+   - Windows: `%APPDATA%\obsidian\obsidian.json`
 3. Vault marked `"open": true`
 4. Only vault in the list
 5. Most recently used vault (`ts`)
@@ -120,8 +212,16 @@ docs/screenshots/  # README images
 
 ## Tests
 
+macOS / Linux:
+
 ```bash
 cd src-tauri && cargo test
+```
+
+Windows (PowerShell):
+
+```powershell
+cd src-tauri; cargo test
 ```
 
 Live vault integration test (optional):
@@ -142,3 +242,7 @@ npx playwright screenshot --viewport-size="520,220" \
 # Tray icon state PNGs
 cd src-tauri && cargo test export_readme_icons -- --ignored --nocapture
 ```
+
+## Contact
+
+For bug reports, feature requests, or general questions, email [khoa.nguyen.bk18@gmail.com](mailto:khoa.nguyen.bk18@gmail.com).

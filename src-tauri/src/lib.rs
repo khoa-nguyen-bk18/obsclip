@@ -98,6 +98,7 @@ pub fn run() {
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
 
             tray::setup_tray(app, &tray_icons)?;
+            tray::setup_settings_window(app)?;
 
             let shortcut = config.shortcut.clone();
             let app_handle = app.handle().clone();
