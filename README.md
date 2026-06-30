@@ -12,6 +12,7 @@ Obsclip is a small menu-bar / system-tray utility that appends your current clip
 - **Auto vault detection** — uses Obsidian's last-open vault, with optional manual override
 - **Tray-only on macOS** — stays in the menu bar, not the Dock
 - **Visual feedback** — tray icon turns green on success, red on error
+- **Optional note prompt** — add a short note when clipping (can be disabled in settings)
 
 ## Requirements
 
@@ -140,7 +141,25 @@ npm run tauri dev
 
 1. Copy text or an image to the clipboard.
 2. Press the global shortcut or choose **Clip to daily note** from the tray menu.
-3. Obsclip appends to today's daily note (creating it from your template if needed).
+3. If **Prompt to add a note** is enabled in settings, a small dialog appears with a one-line preview of what will be appended.
+4. Obsclip appends to today's daily note (creating it from your template if needed).
+
+### Optional note dialog
+
+When enabled in settings, clipping opens a compact dialog with:
+
+- **Preview** — one-line preview of the formatted entry (truncated with `…` if long)
+- **Note field** — optional text to append alongside the clip
+- **Shortcuts**
+
+| Action | macOS | Windows |
+|--------|-------|---------|
+| Clip (with or without note) | `⌘↵` | `Ctrl+↵` |
+| Cancel (nothing appended) | `Esc` | `Esc` |
+
+Leave the note field empty and press the clip shortcut to append clipboard content only. Any note text is trimmed before appending.
+
+With the setting disabled, clipping works as before — no dialog, immediate append.
 
 ### Default shortcut
 
@@ -169,6 +188,7 @@ Open **Settings…** from the tray menu:
 |---------|-------------|
 | **Vault** | Optional folder override, or **Use Obsidian default** to follow Obsidian's active vault |
 | **Global shortcut** | Three pickers: primary modifier, extra modifier, and key (with live preview) |
+| **Prompt to add a note** | When enabled, show the optional note dialog before each clip |
 | **Text format** | Timestamped (default), blockquote, bullet, or checkbox |
 
 Click **Save** to apply shortcut and settings changes.
@@ -177,6 +197,12 @@ Click **Save** to apply shortcut and settings changes.
 
 ```markdown
 - 16:27 — Pasted text from clipboard
+```
+
+With an optional note (`meeting follow-up`):
+
+```markdown
+- 16:27 — Pasted text from clipboard — meeting follow-up
 ```
 
 ### Example image output
@@ -203,10 +229,13 @@ Obsclip resolves the vault in this order:
 
 ```
 src-tauri/src/
+  annotation.rs  # optional note dialog flow
   clip/          # format, image save, clip orchestration
   clipboard/     # read text/image from OS clipboard
   vault/         # Obsidian config + daily note paths
   tray.rs        # menu bar / tray UI
+src/
+  annotation.ts  # note dialog UI
 docs/screenshots/  # README images
 ```
 

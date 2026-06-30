@@ -16,9 +16,20 @@
         "label": "settings",
         "title": "Obsclip Settings",
         "width": 420,
-        "height": 360,
+        "height": 420,
         "visible": false,
         "resizable": false
+      },
+      {
+        "label": "annotation",
+        "title": "Add note",
+        "url": "annotation.html",
+        "width": 380,
+        "height": 148,
+        "visible": false,
+        "resizable": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true
       }
     ],
     "security": {

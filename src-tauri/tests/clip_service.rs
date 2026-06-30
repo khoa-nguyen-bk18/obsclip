@@ -49,6 +49,7 @@ fn appends_text_to_existing_daily_note() {
         vault_override: Some(vault.clone()),
         text_format: TextFormat::Timestamped,
         obsidian_json: PathBuf::from("/tmp/nonexistent-obsidian.json"),
+        annotation: None,
     })
     .unwrap();
 

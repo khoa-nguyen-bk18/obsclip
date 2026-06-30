@@ -1,4 +1,4 @@
-use obsclip_lib::clip::formatter::format_text;
+use obsclip_lib::clip::formatter::{format_text, format_text_with_annotation};
 use obsclip_lib::config::TextFormat;
 
 #[test]
@@ -17,4 +17,26 @@ fn blockquote_multiline() {
 fn checkbox_format() {
     let out = format_text(TextFormat::Checkbox, "task", "09:00");
     assert_eq!(out, "- [ ] task");
+}
+
+#[test]
+fn timestamped_with_annotation() {
+    let out = format_text_with_annotation(
+        TextFormat::Timestamped,
+        "hello",
+        "14:32",
+        Some("extra context"),
+    );
+    assert_eq!(out, "- 14:32 — hello — extra context");
+}
+
+#[test]
+fn blockquote_with_annotation() {
+    let out = format_text_with_annotation(
+        TextFormat::Blockquote,
+        "line1",
+        "14:32",
+        Some("note"),
+    );
+    assert_eq!(out, "> line1\n> note");
 }
