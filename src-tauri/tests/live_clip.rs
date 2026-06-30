@@ -16,6 +16,7 @@ fn live_clip_text_to_daily_note() {
         vault_override: None,
         text_format: TextFormat::Timestamped,
         obsidian_json: obsidian_config_path(),
+        annotation: None,
     })
     .expect("clip to real vault should succeed");
 

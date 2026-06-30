@@ -6,7 +6,9 @@ use tauri::{
     App, AppHandle, Manager, Window, WindowEvent,
 };
 
-use crate::clip::service::clip_from_config;
+use crate::annotation;
+use crate::clip::service::{run_clip, ClipInput};
+use crate::clipboard::{read_clipboard, ClipboardContent};
 use crate::config::AppConfig;
 use crate::platform;
 use crate::tray_icons::TrayIcons;
@@ -58,7 +60,34 @@ pub fn handle_clip(app: &AppHandle) {
         }
     };
 
-    match clip_from_config(&config) {
+    let content = match read_clipboard() {
+        Ok(content) => content,
+        Err(e) => {
+            eprintln!("Failed to read clipboard: {e}");
+            flash_tray_error(app);
+            return;
+        }
+    };
+
+    if matches!(content, ClipboardContent::Empty) {
+        eprintln!("Clip failed: clipboard is empty");
+        flash_tray_error(app);
+        return;
+    }
+
+    if config.annotation_prompt {
+        annotation::start_clip_with_annotation(app, config, content);
+        return;
+    }
+
+    let obsidian_json = platform::obsidian_config_path();
+    match run_clip(ClipInput {
+        content,
+        vault_override: config.vault_path,
+        text_format: config.text_format,
+        obsidian_json,
+        annotation: None,
+    }) {
         Ok(()) => flash_tray_success(app),
         Err(e) => {
             eprintln!("Clip failed: {e}");

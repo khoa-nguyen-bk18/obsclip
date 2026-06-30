@@ -15,6 +15,12 @@ pub struct AppConfig {
     pub vault_path: Option<PathBuf>,
     pub shortcut: String,
     pub text_format: TextFormat,
+    #[serde(default = "default_annotation_prompt")]
+    pub annotation_prompt: bool,
+}
+
+fn default_annotation_prompt() -> bool {
+    true
 }
 
 impl Default for AppConfig {
@@ -23,6 +29,7 @@ impl Default for AppConfig {
             vault_path: None,
             shortcut: "CommandOrControl+Shift+KeyV".into(),
             text_format: TextFormat::Timestamped,
+            annotation_prompt: true,
         }
     }
 }
@@ -61,5 +68,18 @@ mod tests {
     fn load_missing_returns_default() {
         let cfg = AppConfig::load(Path::new("/tmp/nonexistent-obsclip-config-xyz.json")).unwrap();
         assert_eq!(cfg, AppConfig::default());
+    }
+
+    #[test]
+    fn load_missing_annotation_prompt_defaults_true() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("config.json");
+        std::fs::write(
+            &path,
+            r#"{"vault_path":null,"shortcut":"CommandOrControl+Shift+KeyV","text_format":"timestamped"}"#,
+        )
+        .unwrap();
+        let cfg = AppConfig::load(&path).unwrap();
+        assert!(cfg.annotation_prompt);
     }
 }

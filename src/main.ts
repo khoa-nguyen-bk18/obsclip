@@ -12,6 +12,7 @@ interface AppConfig {
   vault_path: string | null;
   shortcut: string;
   text_format: TextFormat;
+  annotation_prompt: boolean;
 }
 
 let vaultPathEl: HTMLInputElement;
@@ -21,6 +22,7 @@ let shortcutSecondaryEl: HTMLSelectElement;
 let shortcutKeyEl: HTMLSelectElement;
 let shortcutPreviewEl: HTMLElement;
 let textFormatEl: HTMLSelectElement;
+let annotationPromptEl: HTMLInputElement;
 let statusEl: HTMLElement;
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -78,6 +80,7 @@ function configFromForm(): AppConfig {
       : vaultPathEl.value.trim() || null,
     shortcut: shortcutFromForm(),
     text_format: textFormatEl.value as TextFormat,
+    annotation_prompt: annotationPromptEl.checked,
   };
 }
 
@@ -87,6 +90,7 @@ function applyConfig(config: AppConfig) {
   vaultPathEl.value = config.vault_path ?? "";
   applyShortcutToForm(config.shortcut);
   textFormatEl.value = config.text_format;
+  annotationPromptEl.checked = config.annotation_prompt;
   syncVaultControls();
 }
 
@@ -158,6 +162,7 @@ window.addEventListener("DOMContentLoaded", () => {
   shortcutKeyEl = document.querySelector("#shortcut-key")!;
   shortcutPreviewEl = document.querySelector("#shortcut-preview")!;
   textFormatEl = document.querySelector("#text-format")!;
+  annotationPromptEl = document.querySelector("#annotation-prompt")!;
   statusEl = document.querySelector("#status")!;
 
   populateKeyOptions();

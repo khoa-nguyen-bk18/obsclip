@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 
 use thiserror::Error;
 
-use crate::clip::formatter::{format_image_link, format_text};
+use crate::clip::formatter::{format_image_link_with_annotation, format_text_with_annotation};
 use crate::clip::image::{attachment_dir, clip_image_filename, save_png};
 use crate::clipboard::{read_clipboard, ClipboardContent};
 use crate::config::{AppConfig, TextFormat};
@@ -30,6 +30,7 @@ pub struct ClipInput {
     pub vault_override: Option<PathBuf>,
     pub text_format: TextFormat,
     pub obsidian_json: PathBuf,
+    pub annotation: Option<String>,
 }
 
 pub fn run_clip(input: ClipInput) -> Result<(), ClipError> {
@@ -39,15 +40,18 @@ pub fn run_clip(input: ClipInput) -> Result<(), ClipError> {
     let rel = daily_note_path(&settings, today);
     let note_path = ensure_daily_note_exists(&vault, &rel, &settings, today)?;
     let time = chrono::Local::now().format("%H:%M").to_string();
+    let annotation = input.annotation.as_deref();
     let block = match input.content {
-        ClipboardContent::Text(t) => format_text(input.text_format, &t, &time),
+        ClipboardContent::Text(t) => {
+            format_text_with_annotation(input.text_format, &t, &time, annotation)
+        }
         ClipboardContent::Image { rgba, width, height } => {
             let date = today.format("%Y-%m-%d").to_string();
             let hms = chrono::Local::now().format("%H%M%S").to_string();
             let filename = clip_image_filename(&date, &hms);
             let dir = attachment_dir(&vault, &settings.attachment_folder);
             save_png(&dir, &filename, &rgba, width, height)?;
-            format_image_link(&time, &filename)
+            format_image_link_with_annotation(&time, &filename, annotation)
         }
         ClipboardContent::Empty => return Err(ClipError::EmptyClipboard),
     };
@@ -65,6 +69,7 @@ pub fn clip_from_config(config: &AppConfig) -> Result<(), ClipError> {
         vault_override: config.vault_path.clone(),
         text_format: config.text_format.clone(),
         obsidian_json,
+        annotation: None,
     })
 }
 

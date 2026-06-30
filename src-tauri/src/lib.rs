@@ -1,3 +1,4 @@
+pub mod annotation;
 pub mod clip;
 pub mod clipboard;
 pub mod config;
@@ -19,7 +20,6 @@ pub struct AppState {
     pub config: Mutex<AppConfig>,
     pub tray_icons: TrayIcons,
 }
-
 #[tauri::command]
 fn get_config(state: tauri::State<AppState>) -> AppConfig {
     state.config.lock().unwrap().clone()
@@ -85,16 +85,20 @@ pub fn run() {
             config: Mutex::new(config.clone()),
             tray_icons: tray_icons.clone(),
         })
+        .manage(annotation::AnnotationState::new())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             get_config,
             save_config,
-            pick_vault_folder
+            pick_vault_folder,
+            annotation::submit_annotation,
+            annotation::cancel_annotation
         ])
         .on_window_event(|window, event| {
             tray::handle_settings_window_event(window, event);
+            annotation::handle_annotation_window_event(window, event);
         })
         .setup(move |app| {
             #[cfg(target_os = "macos")]
