@@ -10,6 +10,7 @@ Obsclip is a small menu-bar / system-tray utility that appends your current clip
 - **Text and images** — images are saved to your vault attachment folder and linked with `![[...]]`
 - **Obsidian-aware** — reads `obsidian.json`, daily-notes config, and attachment folder from `.obsidian/`
 - **Auto vault detection** — uses Obsidian's last-open vault, with optional manual override
+- **Instant settings** — changes save automatically; vault is chosen via folder picker with validation
 - **Tray-only on macOS** — stays in the menu bar, not the Dock
 - **Visual feedback** — tray icon turns green on success, red on error
 - **Optional note prompt** — add a short note when clipping (can be disabled in settings)
@@ -186,12 +187,17 @@ Open **Settings…** from the tray menu:
 
 | Setting | Description |
 |---------|-------------|
-| **Vault** | Optional folder override, or **Use Obsidian default** to follow Obsidian's active vault |
+| **Vault** | Shows the **active vault path** Obsclip is using (Obsidian default or your override). Use **Change…** to pick a folder, or **Use Obsidian default** to follow Obsidian's active vault. Settings save automatically — there is no Save button. |
 | **Global shortcut** | Three pickers: primary modifier, extra modifier, and key (with live preview) |
 | **Prompt to add a note** | When enabled, show the optional note dialog before each clip |
 | **Text format** | Timestamped (default), blockquote, bullet, or checkbox |
 
-Click **Save** to apply shortcut and settings changes.
+### Vault setup
+
+- The vault field always displays the **resolved path** — the folder Obsclip will actually write to — whether you use Obsidian default or a custom folder.
+- **Change…** opens a native folder picker. The chosen folder must be an Obsidian vault (it must contain a `.obsidian` directory). If not, the vault field shows an error and nothing is saved until you pick a valid vault.
+- On first launch, if Obsclip cannot resolve a vault (for example, Obsidian is not installed yet), a dialog prompts you to open Settings and choose a folder.
+- Unchecking **Use Obsidian default** enables **Change…** so you can pick a custom vault. Checking it again switches back to Obsidian's active vault and saves immediately.
 
 ### Example text output (timestamped)
 
@@ -217,13 +223,15 @@ Image saved to your configured attachment folder (e.g. `attachments/clip-2026-06
 
 Obsclip resolves the vault in this order:
 
-1. Manual path from settings (if set)
+1. Manual path from settings (if set and valid — must be an Obsidian vault with a `.obsidian` folder)
 2. `last_open` in Obsidian config:
    - macOS: `~/Library/Application Support/obsidian/obsidian.json`
    - Windows: `%APPDATA%\obsidian\obsidian.json`
 3. Vault marked `"open": true`
 4. Only vault in the list
 5. Most recently used vault (`ts`)
+
+If no vault can be resolved, Obsclip shows a setup dialog at launch and displays an error in the Settings vault field until you choose a valid folder.
 
 ## Project structure
 
