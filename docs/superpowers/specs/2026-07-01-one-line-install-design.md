@@ -31,13 +31,13 @@ End users install and launch Obsclip with a single terminal command per platform
 ### macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/master/scripts/install.sh | bash
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-curl.exe -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.ps1 -o $env:TEMP\obsclip-install.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\obsclip-install.ps1
+curl.exe -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/master/scripts/install.ps1 -o $env:TEMP\obsclip-install.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\obsclip-install.ps1
 ```
 
 ### Pin a version

@@ -415,23 +415,23 @@ Pre-built releases for macOS (Apple Silicon) and Windows. No Rust or Node requir
 ### macOS
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/master/scripts/install.sh | bash
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-curl.exe -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.ps1 -o $env:TEMP\obsclip-install.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\obsclip-install.ps1
+curl.exe -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/master/scripts/install.ps1 -o $env:TEMP\obsclip-install.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\obsclip-install.ps1
 ```
 
 ### Pin a version
 
 ```bash
-OBSCLIP_VERSION=0.1.0 curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.sh | bash
+OBSCLIP_VERSION=0.1.0 curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/master/scripts/install.sh | bash
 ```
 
 ```powershell
-$env:OBSCLIP_VERSION="0.1.0"; curl.exe -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.ps1 -o $env:TEMP\obsclip-install.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\obsclip-install.ps1
+$env:OBSCLIP_VERSION="0.1.0"; curl.exe -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/master/scripts/install.ps1 -o $env:TEMP\obsclip-install.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\obsclip-install.ps1
 ```
 
 > **Unsigned builds:** macOS Gatekeeper may block manually opened apps; the install script clears quarantine automatically. On Windows, SmartScreen may warn on first launch — click **More info** → **Run anyway**.
@@ -507,7 +507,7 @@ Click **Publish release**.
 On Apple Silicon Mac:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/master/scripts/install.sh | bash
 ```
 
 Checklist:
@@ -519,7 +519,7 @@ Checklist:
 Pin test:
 
 ```bash
-OBSCLIP_VERSION=0.1.0 curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.sh | bash
+OBSCLIP_VERSION=0.1.0 curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/master/scripts/install.sh | bash
 ```
 
 - [ ] **Step 6: Windows manual test**
@@ -527,7 +527,7 @@ OBSCLIP_VERSION=0.1.0 curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-b
 In PowerShell:
 
 ```powershell
-curl.exe -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.ps1 -o $env:TEMP\obsclip-install.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\obsclip-install.ps1
+curl.exe -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/master/scripts/install.ps1 -o $env:TEMP\obsclip-install.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\obsclip-install.ps1
 ```
 
 Checklist:
