@@ -5,6 +5,7 @@ use tauri::{
     tray::TrayIconBuilder,
     App, AppHandle, Manager, Window, WindowEvent,
 };
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 
 use crate::annotation;
 use crate::clip::service::{run_clip, ClipInput};
@@ -12,6 +13,7 @@ use crate::clipboard::{read_clipboard, ClipboardContent};
 use crate::config::AppConfig;
 use crate::platform;
 use crate::tray_icons::TrayIcons;
+use crate::vault::resolver::resolve_effective_vault;
 use crate::AppState;
 
 pub const TRAY_ID: &str = "main";
@@ -96,10 +98,40 @@ pub fn handle_clip(app: &AppHandle) {
     }
 }
 
-fn show_settings(app: &AppHandle) {
+pub fn show_settings(app: &AppHandle) {
     if let Some(window) = app.get_webview_window(SETTINGS_WINDOW_LABEL) {
         let _ = window.show();
         let _ = window.set_focus();
+    }
+}
+
+pub async fn prompt_vault_setup_if_needed(app: &AppHandle, config: &AppConfig) {
+    let resolved = resolve_effective_vault(
+        config.vault_path.as_deref(),
+        &platform::obsidian_config_path(),
+    );
+    if resolved.path.is_some() {
+        return;
+    }
+
+    let dialog_app = app.clone();
+    let settings_app = app.clone();
+    let open_settings = tauri::async_runtime::spawn_blocking(move || {
+        dialog_app
+            .dialog()
+            .message(
+                "Obsclip needs a vault folder before it can clip to your daily note. \
+                 Open Settings and choose a folder, or install Obsidian and open a vault.",
+            )
+            .title("Obsclip")
+            .buttons(MessageDialogButtons::OkCustom("Open Settings".into()))
+            .blocking_show()
+    })
+    .await
+    .unwrap_or(false);
+
+    if open_settings {
+        show_settings(&settings_app);
     }
 }
 

@@ -1,5 +1,15 @@
 use std::path::{Path, PathBuf};
+use serde::Serialize;
 use thiserror::Error;
+
+use super::obsidian::validate_obsidian_vault_path;
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ResolvedVault {
+    pub path: Option<String>,
+    pub error: Option<String>,
+}
 
 #[derive(Debug, Error)]
 pub enum VaultError {
@@ -64,4 +74,31 @@ pub fn resolve_vault_from_obsidian_json(path: &Path) -> Result<PathBuf, VaultErr
     }
 
     Err(VaultError::NoLastOpen)
+}
+
+pub fn resolve_effective_vault(vault_override: Option<&Path>, obsidian_json: &Path) -> ResolvedVault {
+    match resolve_vault(vault_override, obsidian_json) {
+        Ok(path) => {
+            if !path.is_dir() {
+                return ResolvedVault {
+                    path: None,
+                    error: Some(format!("Vault folder not found: {}", path.display())),
+                };
+            }
+            if let Err(error) = validate_obsidian_vault_path(&path) {
+                return ResolvedVault {
+                    path: None,
+                    error: Some(error),
+                };
+            }
+            ResolvedVault {
+                path: Some(path.to_string_lossy().into_owned()),
+                error: None,
+            }
+        }
+        Err(error) => ResolvedVault {
+            path: None,
+            error: Some(error.to_string()),
+        },
+    }
 }

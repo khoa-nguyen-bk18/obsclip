@@ -7,6 +7,7 @@ pub mod tray;
 pub mod tray_icons;
 pub mod vault;
 
+use std::path::Path;
 use std::sync::Mutex;
 
 use config::AppConfig;
@@ -15,6 +16,8 @@ use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 use tray_icons::TrayIcons;
+use vault::obsidian::validate_obsidian_vault_path;
+use vault::resolver::{resolve_effective_vault, ResolvedVault};
 
 pub struct AppState {
     pub config: Mutex<AppConfig>,
@@ -23,6 +26,20 @@ pub struct AppState {
 #[tauri::command]
 fn get_config(state: tauri::State<AppState>) -> AppConfig {
     state.config.lock().unwrap().clone()
+}
+
+#[tauri::command]
+fn get_resolved_vault_path(state: tauri::State<AppState>) -> ResolvedVault {
+    let config = state.config.lock().unwrap();
+    resolve_effective_vault(
+        config.vault_path.as_deref(),
+        &platform::obsidian_config_path(),
+    )
+}
+
+#[tauri::command]
+fn validate_obsidian_vault(path: String) -> Result<(), String> {
+    validate_obsidian_vault_path(Path::new(&path))
 }
 
 #[tauri::command]
@@ -91,6 +108,8 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             get_config,
+            get_resolved_vault_path,
+            validate_obsidian_vault,
             save_config,
             pick_vault_folder,
             annotation::submit_annotation,
@@ -115,6 +134,12 @@ pub fn run() {
                         tray::handle_clip(&app_handle);
                     }
                 })?;
+
+            let prompt_app = app.handle().clone();
+            let prompt_config = config.clone();
+            tauri::async_runtime::spawn(async move {
+                tray::prompt_vault_setup_if_needed(&prompt_app, &prompt_config).await;
+            });
 
             Ok(())
         })

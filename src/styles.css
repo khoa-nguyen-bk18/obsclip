@@ -95,6 +95,19 @@ input:disabled {
   background: #f0f0f0;
 }
 
+input[readonly] {
+  color: inherit;
+  background: #f8f8f8;
+  cursor: default;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+input[readonly].unresolved::placeholder {
+  color: #b42318;
+}
+
 button {
   cursor: pointer;
   white-space: nowrap;
@@ -133,17 +146,6 @@ button:disabled {
   gap: 0.75rem;
 }
 
-#save-btn {
-  background: #2f6feb;
-  border-color: #2f6feb;
-  color: #fff;
-}
-
-#save-btn:hover {
-  background: #2558c7;
-  border-color: #2558c7;
-}
-
 .status {
   margin: 0;
   font-size: 0.9rem;
@@ -178,6 +180,14 @@ button:disabled {
     background: #333;
   }
 
+  input[readonly] {
+    background: #2a2a2a;
+  }
+
+  input[readonly].unresolved::placeholder {
+    color: #f97066;
+  }
+
   .hint {
     color: #aaa;
   }
@@ -185,11 +195,5 @@ button:disabled {
   kbd {
     background: #333;
     border-color: #555;
-  }
-
-  #save-btn {
-    background: #3d7eff;
-    border-color: #3d7eff;
-    color: #fff;
   }
 }

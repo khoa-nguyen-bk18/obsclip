@@ -17,6 +17,34 @@ fn resolves_open_vault_without_last_open() {
 }
 
 #[test]
+fn effective_vault_reports_missing_folder() {
+    use obsclip_lib::vault::resolver::resolve_effective_vault;
+
+    let resolved = resolve_effective_vault(
+        Some(std::path::Path::new("/tmp/nonexistent-obsclip-vault-xyz")),
+        std::path::Path::new("/tmp/nonexistent-obsidian.json"),
+    );
+    assert!(resolved.path.is_none());
+    assert!(resolved.error.is_some());
+}
+
+#[test]
+fn effective_vault_resolves_existing_override() {
+    use obsclip_lib::vault::resolver::resolve_effective_vault;
+
+    let vault = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/vault");
+    let resolved = resolve_effective_vault(
+        Some(&vault),
+        std::path::Path::new("/tmp/nonexistent-obsidian.json"),
+    );
+    assert_eq!(
+        resolved.path.as_deref(),
+        Some(vault.to_str().unwrap()),
+    );
+    assert!(resolved.error.is_none());
+}
+
+#[test]
 fn override_takes_precedence() {
     use obsclip_lib::vault::resolver::resolve_vault;
     let override_path = PathBuf::from("/override/vault");

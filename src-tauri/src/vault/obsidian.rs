@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use thiserror::Error;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -17,6 +17,18 @@ pub enum ObsidianConfigError {
     Io(#[from] std::io::Error),
     #[error("json error: {0}")]
     Json(#[from] serde_json::Error),
+}
+
+pub fn validate_obsidian_vault_path(path: &Path) -> Result<(), String> {
+    if !path.is_dir() {
+        return Err("Vault folder not found.".into());
+    }
+    if !path.join(".obsidian").is_dir() {
+        return Err(
+            "This folder is not an Obsidian vault. Choose a folder that contains a .obsidian directory.".into(),
+        );
+    }
+    Ok(())
 }
 
 impl VaultSettings {

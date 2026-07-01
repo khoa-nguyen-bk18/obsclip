@@ -41,6 +41,14 @@
         background: #fff;
       }
       input:disabled { color: #888; background: #f0f0f0; }
+      input[readonly] {
+        color: inherit;
+        background: #f8f8f8;
+        cursor: default;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
       button { cursor: default; white-space: nowrap; }
       .checkbox { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; }
       .checkbox input { width: auto; margin: 0; }
@@ -55,11 +63,6 @@
         font-size: 0.95rem;
       }
       .actions { display: flex; align-items: center; gap: 0.75rem; }
-      #save-btn {
-        background: #2f6feb;
-        border-color: #2f6feb;
-        color: #fff;
-      }
     </style>
   </head>
   <body>
@@ -70,8 +73,8 @@
         <label class="field">
           <span>Vault path</span>
           <div class="row">
-            <input type="text" disabled placeholder="Uses Obsidian default when empty" />
-            <button type="button" disabled>Browse</button>
+            <input type="text" readonly disabled placeholder="Using Obsidian default" />
+            <button type="button" disabled>Change…</button>
           </div>
         </label>
         <label class="checkbox">
@@ -105,7 +108,7 @@
         </label>
       </fieldset>
       <div class="actions">
-        <button type="button" id="save-btn">Save</button>
+        <p class="hint" style="margin: 0; color: #2d6a2d;">Saved</p>
       </div>
     </main>
   </body>

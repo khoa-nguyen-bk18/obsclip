@@ -21,10 +21,11 @@
               <input
                 id="vault-path"
                 type="text"
-                placeholder="Uses Obsidian default when empty"
+                readonly
+                placeholder="Using Obsidian default"
                 autocomplete="off"
               />
-              <button type="button" id="browse-vault">Browse</button>
+              <button type="button" id="change-vault">Change…</button>
             </div>
           </label>
           <label class="checkbox">
@@ -89,7 +90,6 @@
         </fieldset>
 
         <div class="actions">
-          <button type="submit" id="save-btn">Save</button>
           <p id="status" class="status" aria-live="polite"></p>
         </div>
       </form>

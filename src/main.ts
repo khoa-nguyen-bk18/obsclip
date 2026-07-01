@@ -15,8 +15,14 @@ interface AppConfig {
   annotation_prompt: boolean;
 }
 
+interface ResolvedVault {
+  path: string | null;
+  error: string | null;
+}
+
 let vaultPathEl: HTMLInputElement;
 let useDefaultEl: HTMLInputElement;
+let savedCustomVaultPath: string | null = null;
 let shortcutPrimaryEl: HTMLSelectElement;
 let shortcutSecondaryEl: HTMLSelectElement;
 let shortcutKeyEl: HTMLSelectElement;
@@ -34,10 +40,25 @@ function setStatus(message: string, isError = false) {
 
 function syncVaultControls() {
   const useDefault = useDefaultEl.checked;
-  vaultPathEl.disabled = useDefault;
-  document.getElementById("browse-vault")!.toggleAttribute("disabled", useDefault);
-  if (useDefault) {
+  document.getElementById("change-vault")!.toggleAttribute("disabled", useDefault);
+}
+
+async function refreshVaultDisplay() {
+  try {
+    const resolved = await invoke<ResolvedVault>("get_resolved_vault_path");
+    if (resolved.path) {
+      vaultPathEl.value = resolved.path;
+      vaultPathEl.placeholder = "";
+      vaultPathEl.classList.remove("unresolved");
+    } else {
+      vaultPathEl.value = "";
+      vaultPathEl.placeholder = resolved.error ?? "Vault not configured";
+      vaultPathEl.classList.add("unresolved");
+    }
+  } catch (error) {
     vaultPathEl.value = "";
+    vaultPathEl.placeholder = `Failed to resolve vault: ${error}`;
+    vaultPathEl.classList.add("unresolved");
   }
 }
 
@@ -75,9 +96,7 @@ function updateShortcutPreview() {
 
 function configFromForm(): AppConfig {
   return {
-    vault_path: useDefaultEl.checked
-      ? null
-      : vaultPathEl.value.trim() || null,
+    vault_path: useDefaultEl.checked ? null : savedCustomVaultPath,
     shortcut: shortcutFromForm(),
     text_format: textFormatEl.value as TextFormat,
     annotation_prompt: annotationPromptEl.checked,
@@ -87,11 +106,12 @@ function configFromForm(): AppConfig {
 function applyConfig(config: AppConfig) {
   const useDefault = config.vault_path === null;
   useDefaultEl.checked = useDefault;
-  vaultPathEl.value = config.vault_path ?? "";
+  savedCustomVaultPath = config.vault_path;
   applyShortcutToForm(config.shortcut);
   textFormatEl.value = config.text_format;
   annotationPromptEl.checked = config.annotation_prompt;
   syncVaultControls();
+  void refreshVaultDisplay();
 }
 
 async function loadConfig() {
@@ -141,14 +161,31 @@ async function saveConfig() {
   }
 }
 
-async function browseVault() {
+function showVaultFieldError(message: string) {
+  vaultPathEl.value = "";
+  vaultPathEl.placeholder = message;
+  vaultPathEl.classList.add("unresolved");
+}
+
+async function changeVault() {
   try {
     const path = await invoke<string | null>("pick_vault_folder");
-    if (path) {
-      useDefaultEl.checked = false;
-      vaultPathEl.value = path;
-      syncVaultControls();
+    if (!path) {
+      return;
     }
+
+    try {
+      await invoke("validate_obsidian_vault", { path });
+    } catch (error) {
+      showVaultFieldError(String(error));
+      setStatus("");
+      return;
+    }
+
+    useDefaultEl.checked = false;
+    savedCustomVaultPath = path;
+    syncVaultControls();
+    await saveConfig();
   } catch (error) {
     setStatus(`Failed to pick folder: ${error}`, true);
   }
@@ -167,20 +204,28 @@ window.addEventListener("DOMContentLoaded", () => {
 
   populateKeyOptions();
 
-  useDefaultEl.addEventListener("change", syncVaultControls);
+  useDefaultEl.addEventListener("change", async () => {
+    syncVaultControls();
+    if (useDefaultEl.checked || savedCustomVaultPath) {
+      await saveConfig();
+    } else {
+      setStatus("");
+    }
+    await refreshVaultDisplay();
+  });
   for (const el of [shortcutPrimaryEl, shortcutSecondaryEl, shortcutKeyEl]) {
-    el.addEventListener("change", updateShortcutPreview);
-  }
-
-  document
-    .querySelector("#browse-vault")!
-    .addEventListener("click", () => browseVault());
-  document
-    .querySelector("#settings-form")!
-    .addEventListener("submit", (event) => {
-      event.preventDefault();
+    el.addEventListener("change", () => {
+      updateShortcutPreview();
       saveConfig();
     });
+  }
+
+  textFormatEl.addEventListener("change", () => saveConfig());
+  annotationPromptEl.addEventListener("change", () => saveConfig());
+
+  document
+    .querySelector("#change-vault")!
+    .addEventListener("click", () => changeVault());
 
   loadConfig();
 });
