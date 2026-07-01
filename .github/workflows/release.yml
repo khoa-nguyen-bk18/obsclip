@@ -55,6 +55,6 @@ jobs:
             **Windows:** `.msi`
 
             Builds are unsigned. macOS install script clears quarantine automatically.
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}

@@ -27,7 +27,12 @@ else
 fi
 
 info "resolving release…"
-release_json="$(curl -fsSL "$api_url")" || die "failed to fetch release metadata from $api_url"
+release_json="$(
+  curl -fsSL \
+    -H "Accept: application/vnd.github+json" \
+    -H "User-Agent: obsclip-installer" \
+    "$api_url"
+)" || die "failed to fetch release metadata from $api_url — is a release published? see https://github.com/${REPO}/releases"
 
 if [[ -z "$version" ]]; then
   version="$(printf '%s' "$release_json" | grep -m1 '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')"
