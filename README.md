@@ -15,6 +15,36 @@ Obsclip is a small menu-bar / system-tray utility that appends your current clip
 - **Visual feedback** — tray icon turns green on success, red on error
 - **Optional note prompt** — add a short note when clipping (can be disabled in settings)
 
+## Install (recommended)
+
+Pre-built releases for macOS (Apple Silicon) and Windows. No Rust or Node required.
+
+### macOS
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.sh | bash
+```
+
+### Windows (PowerShell)
+
+```powershell
+curl.exe -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.ps1 -o $env:TEMP\obsclip-install.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\obsclip-install.ps1
+```
+
+### Pin a version
+
+```bash
+OBSCLIP_VERSION=0.1.0 curl -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.sh | bash
+```
+
+```powershell
+$env:OBSCLIP_VERSION="0.1.0"; curl.exe -fsSL https://raw.githubusercontent.com/khoa-nguyen-bk18/obsclip/main/scripts/install.ps1 -o $env:TEMP\obsclip-install.ps1; powershell -ExecutionPolicy Bypass -File $env:TEMP\obsclip-install.ps1
+```
+
+> **Unsigned builds:** macOS Gatekeeper may block manually opened apps; the install script clears quarantine automatically. On Windows, SmartScreen may warn on first launch — click **More info** → **Run anyway**.
+
+Requires a [GitHub Release](https://github.com/khoa-nguyen-bk18/obsclip/releases) for your platform. See [Build from source](#build-from-source) if no release is available yet.
+
 ## Requirements
 
 - **Obsidian** with **Daily notes** enabled
@@ -24,7 +54,7 @@ Obsclip is a small menu-bar / system-tray utility that appends your current clip
 
 ## Build from source
 
-Obsclip is not distributed as pre-built installers. Clone the repo, install the prerequisites for your OS, then build locally.
+For contributors or if no pre-built release exists for your platform.
 
 ### Prerequisites
 
@@ -66,7 +96,7 @@ npm install
 npm run tauri build -- --bundles dmg
 ```
 
-**Install:** open the DMG under `src-tauri/target/release/bundle/dmg/` (name includes your version and CPU, e.g. `Obsclip_0.1.0_aarch64.dmg`), drag **Obsclip** to **Applications**, then launch it.
+**Output:** `src-tauri/target/release/bundle/dmg/Obsclip_<version>_aarch64.dmg`
 
 **Apple Silicon + Intel:** on Apple Silicon, the default build is `aarch64`. For a universal binary:
 
@@ -94,13 +124,7 @@ npm run tauri build -- --bundles msi
 
 The first build can take several minutes while Rust compiles dependencies.
 
-**Install:** run the MSI installer:
-
-```
-src-tauri\target\release\bundle\msi\Obsclip_0.1.0_x64_en-US.msi
-```
-
-(File name includes your version from `src-tauri/tauri.conf.json`.)
+**Output:** `src-tauri\target\release\bundle\msi\Obsclip_<version>_x64_en-US.msi`
 
 **Portable `.exe` installer** (no MSI):
 
