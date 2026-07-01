@@ -81,7 +81,12 @@ info "clearing quarantine attributes…"
 xattr -cr "$INSTALL_DIR"
 
 # --- launch ---
+# Launch the bundled executable directly. `open -a` goes through Launch
+# Services and can show a Dock icon / miss the menu bar tray for LSUIElement apps.
+EXE="${INSTALL_DIR}/Contents/MacOS/obsclip"
+[[ -x "$EXE" ]] || die "executable not found: $EXE"
+
 info "launching ${APP_NAME}…"
-open -a "$APP_NAME"
+nohup "$EXE" >/dev/null 2>&1 &
 
 info "done — ${APP_NAME} v${version} is installed and running."

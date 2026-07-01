@@ -2,6 +2,8 @@ pub mod annotation;
 pub mod clip;
 pub mod clipboard;
 pub mod config;
+#[cfg(target_os = "macos")]
+pub mod macos_prelaunch;
 pub mod platform;
 pub mod tray;
 pub mod tray_icons;
