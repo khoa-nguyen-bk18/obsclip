@@ -38,6 +38,9 @@ jobs:
         with:
           workspaces: ./src-tauri -> target
 
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+
       - name: Install frontend dependencies
         run: npm ci
 
