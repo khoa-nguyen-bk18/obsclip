@@ -8,6 +8,7 @@ Obsclip is a small menu-bar / system-tray utility that appends your current clip
 
 - **One-action clip** — global shortcut or tray menu
 - **Text and images** — images are saved to your vault attachment folder and linked with `![[...]]`
+- **Image OCR** — optionally extract text from clipboard images and append it indented under the image link (offline, bundled Tesseract)
 - **Obsidian-aware** — reads `obsidian.json`, daily-notes config, and attachment folder from `.obsidian/`
 - **Auto vault detection** — uses Obsidian's last-open vault, with optional manual override
 - **Instant settings** — changes save automatically; vault is chosen via folder picker with validation
@@ -67,8 +68,11 @@ Install these before building:
 | Xcode Command Line Tools (`xcode-select --install`) | ✅ | — |
 | [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with **Desktop development with C++** | — | ✅ |
 | [WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) | — | ✅ |
+| [CMake](https://cmake.org/) | ✅ | ✅ |
 
 See the [Tauri prerequisites guide](https://v2.tauri.app/start/prerequisites/) if anything is missing.
+
+> **OCR builds:** Image OCR statically links Tesseract via `kreuzberg-tesseract`, which requires **CMake** on your system. The first release build takes longer while Tesseract compiles; pre-built installers are ~20–30 MB larger than without OCR.
 
 #### Windows setup (one time)
 
@@ -215,6 +219,14 @@ Open **Settings…** from the tray menu:
 | **Global shortcut** | Three pickers: primary modifier, extra modifier, and key (with live preview) |
 | **Prompt to add a note** | When enabled, show the optional note dialog before each clip |
 | **Text format** | Timestamped (default), blockquote, bullet, or checkbox |
+| **Extract text from images** | When enabled (default), run OCR on clipboard images and append recognized text indented under the image link. If OCR fails, the image still clips; a brief toast appears and Settings shows the error with a suggested fix. |
+| **OCR languages** | Searchable list of Tesseract languages; enable up to **two** at a time (e.g. English + Vietnamese). **English** ships with the installer; other languages download on demand from Settings and work fully offline once installed. |
+
+### Image OCR
+
+- **Extract text from images** — toggle OCR for image clips (on by default).
+- **Languages** — pick up to two active languages. English (`eng`) is bundled; search the list and use **Download** for any other language pack. Downloads are stored locally and work offline.
+- If OCR is on but no language is enabled, or a selected pack is missing, Obsclip still saves the image and shows guidance in Settings.
 
 ### Vault setup
 
@@ -241,6 +253,22 @@ Image saved to your configured attachment folder (e.g. `attachments/clip-2026-06
 
 ```markdown
 - 14:32 — ![[clip-2026-06-29-143052.png]]
+```
+
+With OCR enabled and text detected:
+
+```markdown
+- 14:32 — ![[clip-2026-06-29-143052.png]]
+  Meeting notes from whiteboard
+  Action item: ship OCR v1
+```
+
+With OCR and an optional note (`follow up`):
+
+```markdown
+- 14:32 — ![[clip-2026-06-29-143052.png]] — follow up
+  Meeting notes from whiteboard
+  Action item: ship OCR v1
 ```
 
 ## How vault detection works
