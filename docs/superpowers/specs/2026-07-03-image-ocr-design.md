@@ -1,7 +1,7 @@
 # Image OCR Design
 
 **Date:** 2026-07-03  
-**Status:** Draft (pending review)  
+**Status:** Approved  
 **Platforms:** macOS, Windows (same as Obsclip v1)
 
 ## Summary
