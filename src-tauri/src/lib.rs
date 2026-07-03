@@ -15,7 +15,7 @@ use std::sync::Mutex;
 
 use config::AppConfig;
 use platform::obsclip_config_path;
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 use tray_icons::TrayIcons;
@@ -34,6 +34,29 @@ fn get_config(state: tauri::State<AppState>) -> AppConfig {
 #[tauri::command]
 fn get_ocr_health(state: tauri::State<ocr::health::OcrHealthState>) -> ocr::health::OcrHealth {
     state.snapshot()
+}
+
+#[tauri::command]
+fn get_ocr_languages(
+    state: tauri::State<AppState>,
+    app: tauri::AppHandle,
+) -> Result<Vec<ocr::languages::LanguageEntry>, String> {
+    let config = state.config.lock().unwrap();
+    let manifest = app
+        .path()
+        .resolve("tessdata_manifest.json", tauri::path::BaseDirectory::Resource)
+        .map_err(|e| e.to_string())?;
+    ocr::languages::list_languages(&manifest, &platform::tessdata_dir(), &config.ocr_languages)
+}
+
+#[tauri::command]
+fn download_ocr_language(code: String) -> Result<(), String> {
+    ocr::languages::download_language(&platform::tessdata_dir(), &code)
+}
+
+#[tauri::command]
+fn remove_ocr_language(code: String) -> Result<(), String> {
+    ocr::languages::remove_language(&platform::tessdata_dir(), &code)
 }
 
 #[tauri::command]
@@ -56,6 +79,7 @@ fn save_config(
     state: tauri::State<AppState>,
     config: AppConfig,
 ) -> Result<(), String> {
+    ocr::languages::validate_ocr_languages(&config.ocr_languages)?;
     let old_shortcut = state.config.lock().unwrap().shortcut.clone();
     config
         .save(&obsclip_config_path())
@@ -118,6 +142,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             get_config,
             get_ocr_health,
+            get_ocr_languages,
+            download_ocr_language,
+            remove_ocr_language,
             get_resolved_vault_path,
             validate_obsidian_vault,
             save_config,
