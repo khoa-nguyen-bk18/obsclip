@@ -6,8 +6,9 @@ MANIFEST="$ROOT/src-tauri/resources/tessdata_manifest.json"
 mkdir -p "$TESSDIR"
 curl -fsSL -o "$TESSDIR/eng.traineddata" \
   "https://github.com/tesseract-ocr/tessdata/raw/main/eng.traineddata"
-python3 - <<'PY'
-import json, urllib.request
+python3 - "$MANIFEST" <<'PY'
+import json, sys, urllib.request
+manifest_path = sys.argv[1]
 files = json.load(urllib.request.urlopen(
     "https://api.github.com/repos/tesseract-ocr/tessdata/contents/"
 ))
@@ -19,8 +20,8 @@ for item in files:
     code = name.removesuffix(".traineddata")
     langs.append({"code": code, "name": code})
 langs.sort(key=lambda x: x["code"])
-with open("src-tauri/resources/tessdata_manifest.json", "w") as f:
+with open(manifest_path, "w") as f:
     json.dump(langs, f, indent=2)
     f.write("\n")
-print(f"Wrote {len(langs)} languages")
+print(f"Wrote {len(langs)} languages to {manifest_path}")
 PY
