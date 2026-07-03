@@ -17,10 +17,22 @@ pub struct AppConfig {
     pub text_format: TextFormat,
     #[serde(default = "default_annotation_prompt")]
     pub annotation_prompt: bool,
+    #[serde(default = "default_image_ocr")]
+    pub image_ocr: bool,
+    #[serde(default = "default_ocr_languages")]
+    pub ocr_languages: Vec<String>,
 }
 
 fn default_annotation_prompt() -> bool {
     true
+}
+
+fn default_image_ocr() -> bool {
+    true
+}
+
+fn default_ocr_languages() -> Vec<String> {
+    vec!["eng".into()]
 }
 
 impl Default for AppConfig {
@@ -30,6 +42,8 @@ impl Default for AppConfig {
             shortcut: "CommandOrControl+Shift+KeyV".into(),
             text_format: TextFormat::Timestamped,
             annotation_prompt: true,
+            image_ocr: true,
+            ocr_languages: vec!["eng".into()],
         }
     }
 }
@@ -81,5 +95,26 @@ mod tests {
         .unwrap();
         let cfg = AppConfig::load(&path).unwrap();
         assert!(cfg.annotation_prompt);
+    }
+
+    #[test]
+    fn default_config_includes_image_ocr() {
+        let cfg = AppConfig::default();
+        assert!(cfg.image_ocr);
+        assert_eq!(cfg.ocr_languages, vec!["eng".to_string()]);
+    }
+
+    #[test]
+    fn load_missing_ocr_fields_use_defaults() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("config.json");
+        std::fs::write(
+            &path,
+            r#"{"vault_path":null,"shortcut":"CommandOrControl+Shift+KeyV","text_format":"timestamped","annotation_prompt":true}"#,
+        )
+        .unwrap();
+        let cfg = AppConfig::load(&path).unwrap();
+        assert!(cfg.image_ocr);
+        assert_eq!(cfg.ocr_languages, vec!["eng".to_string()]);
     }
 }
