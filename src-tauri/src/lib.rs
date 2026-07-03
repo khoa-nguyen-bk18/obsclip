@@ -1,4 +1,5 @@
 pub mod annotation;
+pub mod toast;
 pub mod clip;
 pub mod ocr;
 pub mod clipboard;
