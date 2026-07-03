@@ -156,6 +156,7 @@ fn finish_clip(app: &AppHandle, session_id: u64, annotation: Option<String>) {
     }
 
     let obsidian_json = platform::obsidian_config_path();
+    let bundled_eng = app.state::<crate::AppState>().bundled_eng.clone();
     let result = run_clip(ClipInput {
         content: pending.content,
         vault_override: pending.config.vault_path.clone(),
@@ -166,7 +167,7 @@ fn finish_clip(app: &AppHandle, session_id: u64, annotation: Option<String>) {
         ocr_languages: pending.config.ocr_languages.clone(),
         tessdata_dir: platform::tessdata_dir(),
         tessdata_prefix: platform::tessdata_prefix(),
-        bundled_eng: platform::bundled_eng_traineddata(),
+        bundled_eng,
         ocr_health: Some(app.state::<Arc<OcrHealthState>>().inner().clone()),
     });
 

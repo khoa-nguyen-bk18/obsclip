@@ -88,8 +88,17 @@ pub fn run_clip(input: ClipInput) -> Result<ClipOutcome, ClipError> {
                     if let Some(health) = &input.ocr_health {
                         health.set_error(msg.clone(), msg);
                     }
+                } else if let Err(e) =
+                    ensure_english_installed(&input.tessdata_dir, &input.bundled_eng)
+                {
+                    ocr_toast = true;
+                    if let Some(health) = &input.ocr_health {
+                        health.set_error(
+                            format!("English OCR data unavailable: {e}"),
+                            "Restart Obsclip. If it persists, reinstall the app.",
+                        );
+                    }
                 } else {
-                    let _ = ensure_english_installed(&input.tessdata_dir, &input.bundled_eng);
                     let missing =
                         missing_enabled_languages(&input.tessdata_dir, &input.ocr_languages);
                     if !missing.is_empty() {

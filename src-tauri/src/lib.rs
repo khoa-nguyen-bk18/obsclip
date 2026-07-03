@@ -26,6 +26,7 @@ use vault::resolver::{resolve_effective_vault, ResolvedVault};
 pub struct AppState {
     pub config: Mutex<AppConfig>,
     pub tray_icons: TrayIcons,
+    pub bundled_eng: std::path::PathBuf,
 }
 #[tauri::command]
 fn get_config(state: tauri::State<AppState>) -> AppConfig {
@@ -133,10 +134,6 @@ pub fn run() {
     let tray_icons = TrayIcons::new();
 
     tauri::Builder::default()
-        .manage(AppState {
-            config: Mutex::new(config.clone()),
-            tray_icons: tray_icons.clone(),
-        })
         .manage(annotation::AnnotationState::new())
         .manage(Arc::new(ocr::health::OcrHealthState::new()))
         .plugin(tauri_plugin_opener::init())
@@ -162,6 +159,28 @@ pub fn run() {
         .setup(move |app| {
             #[cfg(target_os = "macos")]
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
+            let bundled_eng = app
+                .path()
+                .resolve("tessdata/eng.traineddata", tauri::path::BaseDirectory::Resource)
+                .map_err(|e| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::NotFound,
+                        format!("bundled English OCR data not found: {e}"),
+                    )
+                })?;
+            if let Err(e) = ocr::languages::ensure_english_installed(
+                &platform::tessdata_dir(),
+                &bundled_eng,
+            ) {
+                eprintln!("Failed to install English OCR data: {e}");
+            }
+
+            app.manage(AppState {
+                config: Mutex::new(config.clone()),
+                tray_icons: tray_icons.clone(),
+                bundled_eng,
+            });
 
             tray::setup_tray(app, &tray_icons)?;
 

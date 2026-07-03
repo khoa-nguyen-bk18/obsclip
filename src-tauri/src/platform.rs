@@ -21,25 +21,29 @@ pub fn tessdata_prefix() -> PathBuf {
 }
 
 pub fn bundled_eng_traineddata() -> PathBuf {
-    std::env::current_exe()
-        .ok()
-        .and_then(|exe| {
-            #[cfg(target_os = "macos")]
-            {
-                exe.parent()
-                    .and_then(|p| p.parent())
-                    .map(|contents| contents.join("Resources/tessdata/eng.traineddata"))
-            }
-            #[cfg(target_os = "windows")]
-            {
-                exe.parent().map(|p| p.join("tessdata/eng.traineddata"))
-            }
-            #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-            {
-                None
-            }
-        })
-        .unwrap_or_else(|| PathBuf::from("resources/tessdata/eng.traineddata"))
+    for candidate in bundled_eng_candidates() {
+        if candidate.is_file() {
+            return candidate;
+        }
+    }
+    PathBuf::from("resources/tessdata/eng.traineddata")
+}
+
+fn bundled_eng_candidates() -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+    if let Ok(exe) = std::env::current_exe() {
+        #[cfg(target_os = "macos")]
+        if let Some(contents) = exe.parent().and_then(|p| p.parent()) {
+            candidates.push(contents.join("Resources/tessdata/eng.traineddata"));
+        }
+        #[cfg(target_os = "windows")]
+        if let Some(dir) = exe.parent() {
+            candidates.push(dir.join("tessdata/eng.traineddata"));
+        }
+    }
+    candidates.push(PathBuf::from("src-tauri/resources/tessdata/eng.traineddata"));
+    candidates.push(PathBuf::from("resources/tessdata/eng.traineddata"));
+    candidates
 }
 
 fn config_root() -> PathBuf {

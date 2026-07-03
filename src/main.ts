@@ -58,7 +58,7 @@ const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const STATUS_LABELS: Record<LanguageStatus, string> = {
   bundled: "Bundled",
   installed: "Installed",
-  not_downloaded: "Not downloaded",
+  not_downloaded: "Missing",
 };
 
 function setStatus(message: string, isError = false) {
@@ -165,10 +165,13 @@ function renderOcrLanguageList() {
   ocrLangListEl.replaceChildren();
 
   for (const entry of ocrLanguageEntries) {
+    if (!matchesOcrSearch(entry, query)) {
+      continue;
+    }
+
     const row = document.createElement("div");
     row.className = "ocr-lang-row";
     row.dataset.code = entry.code;
-    row.hidden = !matchesOcrSearch(entry, query);
 
     const checkboxLabel = document.createElement("label");
     checkboxLabel.className = "ocr-lang-checkbox checkbox";
@@ -213,7 +216,11 @@ function renderOcrLanguageList() {
       actions.append(removeBtn);
     }
 
-    row.append(checkboxLabel, badge, actions);
+    const meta = document.createElement("div");
+    meta.className = "ocr-lang-meta";
+    meta.append(badge, actions);
+
+    row.append(checkboxLabel, meta);
     ocrLangListEl.append(row);
   }
 }
@@ -294,15 +301,6 @@ async function loadOcrHealth() {
     }
   } catch (error) {
     setStatus(`Failed to load OCR health: ${error}`, true);
-  }
-}
-
-function filterOcrLanguages() {
-  const query = ocrSearchQuery();
-  for (const row of ocrLangListEl.querySelectorAll<HTMLElement>(".ocr-lang-row")) {
-    const code = row.dataset.code;
-    const entry = ocrLanguageEntries.find((item) => item.code === code);
-    row.hidden = entry ? !matchesOcrSearch(entry, query) : true;
   }
 }
 
@@ -428,7 +426,12 @@ window.addEventListener("DOMContentLoaded", () => {
   textFormatEl.addEventListener("change", () => saveConfig());
   annotationPromptEl.addEventListener("change", () => saveConfig());
   imageOcrEl.addEventListener("change", () => saveConfig());
-  ocrLangSearchEl.addEventListener("input", () => filterOcrLanguages());
+  ocrLangSearchEl.addEventListener("input", () => renderOcrLanguageList());
+  ocrLangSearchEl.addEventListener("search", () => renderOcrLanguageList());
+
+  document
+    .getElementById("settings-form")!
+    .addEventListener("submit", (event) => event.preventDefault());
 
   document
     .querySelector("#change-vault")!

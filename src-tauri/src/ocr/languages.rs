@@ -49,22 +49,35 @@ pub fn load_manifest(manifest_path: &Path) -> Result<Vec<ManifestEntry>, String>
     serde_json::from_str(&data).map_err(|e| e.to_string())
 }
 
+fn language_status(tessdata_dir: &Path, code: &str) -> LanguageStatus {
+    if code == "eng" {
+        LanguageStatus::Bundled
+    } else if is_installed(tessdata_dir, code) {
+        LanguageStatus::Installed
+    } else {
+        LanguageStatus::NotDownloaded
+    }
+}
+
+fn language_sort_key(status: &LanguageStatus, name: &str) -> (u8, String) {
+    let rank = match status {
+        LanguageStatus::Bundled => 0,
+        LanguageStatus::Installed => 1,
+        LanguageStatus::NotDownloaded => 2,
+    };
+    (rank, name.to_lowercase())
+}
+
 pub fn list_languages(
     manifest_path: &Path,
     tessdata_dir: &Path,
     enabled: &[String],
 ) -> Result<Vec<LanguageEntry>, String> {
     let manifest = load_manifest(manifest_path)?;
-    Ok(manifest
+    let mut entries: Vec<LanguageEntry> = manifest
         .into_iter()
         .map(|m| {
-            let status = if m.code == "eng" {
-                LanguageStatus::Bundled
-            } else if is_installed(tessdata_dir, &m.code) {
-                LanguageStatus::Installed
-            } else {
-                LanguageStatus::NotDownloaded
-            };
+            let status = language_status(tessdata_dir, &m.code);
             LanguageEntry {
                 enabled: enabled.contains(&m.code),
                 code: m.code.clone(),
@@ -72,7 +85,11 @@ pub fn list_languages(
                 status,
             }
         })
-        .collect())
+        .collect();
+    entries.sort_by(|a, b| {
+        language_sort_key(&a.status, &a.name).cmp(&language_sort_key(&b.status, &b.name))
+    });
+    Ok(entries)
 }
 
 pub fn ensure_english_installed(tessdata_dir: &Path, bundled_eng: &Path) -> Result<(), String> {
