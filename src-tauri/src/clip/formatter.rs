@@ -56,6 +56,24 @@ pub fn format_image_link_with_annotation(
     apply_annotation(&block, TextFormat::Timestamped, annotation)
 }
 
+pub fn format_image_link_with_ocr(
+    time: &str,
+    filename: &str,
+    ocr_text: Option<&str>,
+    annotation: Option<&str>,
+) -> String {
+    let base = format_image_link_with_annotation(time, filename, annotation);
+    let Some(ocr_text) = ocr_text.filter(|t| !t.trim().is_empty()) else {
+        return base;
+    };
+    let indented = ocr_text
+        .lines()
+        .map(|line| format!("  {line}"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    format!("{base}\n{indented}")
+}
+
 fn apply_annotation(block: &str, format: TextFormat, annotation: Option<&str>) -> String {
     let Some(annotation) = annotation.filter(|text| !text.is_empty()) else {
         return block.to_string();
