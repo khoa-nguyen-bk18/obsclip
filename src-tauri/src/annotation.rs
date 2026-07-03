@@ -1,5 +1,5 @@
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use tauri::{AppHandle, Emitter, Manager, Window, WindowEvent};
 
@@ -8,7 +8,9 @@ use crate::clip::image::clip_image_filename;
 use crate::clipboard::ClipboardContent;
 use crate::clip::service::{run_clip, ClipInput};
 use crate::config::AppConfig;
+use crate::ocr::health::OcrHealthState;
 use crate::platform;
+use crate::toast;
 use crate::tray;
 
 pub const ANNOTATION_WINDOW_LABEL: &str = "annotation";
@@ -17,6 +19,7 @@ pub const ANNOTATION_WINDOW_LABEL: &str = "annotation";
 #[serde(rename_all = "camelCase")]
 struct AnnotationShowPayload {
     entry_preview: String,
+    ocr_enabled: bool,
 }
 
 pub struct AnnotationState {
@@ -50,6 +53,7 @@ pub fn start_clip_with_annotation(app: &AppHandle, config: AppConfig, content: C
     let preview = entry_preview(&content, &config.text_format);
     let payload = AnnotationShowPayload {
         entry_preview: preview,
+        ocr_enabled: config.image_ocr,
     };
 
     *state.pending.lock().unwrap() = Some(PendingClip {
@@ -163,11 +167,16 @@ fn finish_clip(app: &AppHandle, session_id: u64, annotation: Option<String>) {
         tessdata_dir: platform::tessdata_dir(),
         tessdata_prefix: platform::tessdata_prefix(),
         bundled_eng: platform::bundled_eng_traineddata(),
-        ocr_health: None,
+        ocr_health: Some(app.state::<Arc<OcrHealthState>>().inner().clone()),
     });
 
     match result {
-        Ok(_) => tray::flash_tray_success(app),
+        Ok(outcome) => {
+            if outcome.ocr_toast {
+                toast::show_ocr_failure_toast(app);
+            }
+            tray::flash_tray_success(app);
+        }
         Err(e) => {
             eprintln!("Clip failed: {e}");
             tray::flash_tray_error(app);

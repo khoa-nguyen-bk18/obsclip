@@ -12,7 +12,7 @@ pub mod tray_icons;
 pub mod vault;
 
 use std::path::Path;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use config::AppConfig;
 use platform::obsclip_config_path;
@@ -33,7 +33,9 @@ fn get_config(state: tauri::State<AppState>) -> AppConfig {
 }
 
 #[tauri::command]
-fn get_ocr_health(state: tauri::State<ocr::health::OcrHealthState>) -> ocr::health::OcrHealth {
+fn get_ocr_health(
+    state: tauri::State<Arc<ocr::health::OcrHealthState>>,
+) -> ocr::health::OcrHealth {
     state.snapshot()
 }
 
@@ -136,7 +138,7 @@ pub fn run() {
             tray_icons: tray_icons.clone(),
         })
         .manage(annotation::AnnotationState::new())
-        .manage(ocr::health::OcrHealthState::new())
+        .manage(Arc::new(ocr::health::OcrHealthState::new()))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())

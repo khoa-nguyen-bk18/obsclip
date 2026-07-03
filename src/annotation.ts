@@ -3,11 +3,13 @@ import { listen } from "@tauri-apps/api/event";
 
 interface AnnotationShowPayload {
   entryPreview: string;
+  ocrEnabled: boolean;
 }
 
 const inputEl = document.querySelector("#annotation-input") as HTMLInputElement;
 const hintEl = document.querySelector("#annotation-hint") as HTMLParagraphElement;
 const previewEl = document.querySelector("#entry-preview") as HTMLDivElement;
+const ocrStatusEl = document.querySelector("#ocr-status") as HTMLParagraphElement;
 
 function previewOneLine(text: string): string {
   const line = text.split(/\r?\n/).find((part) => part.trim().length > 0);
@@ -23,6 +25,7 @@ window.addEventListener("DOMContentLoaded", () => {
   listen<AnnotationShowPayload>("annotation-show", (event) => {
     inputEl.value = "";
     previewEl.textContent = previewOneLine(event.payload.entryPreview);
+    ocrStatusEl.textContent = event.payload.ocrEnabled ? "OCR: on" : "OCR: off";
     inputEl.focus();
   });
 

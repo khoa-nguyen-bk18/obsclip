@@ -25,7 +25,7 @@
         "title": "Add note",
         "url": "annotation.html",
         "width": 380,
-        "height": 148,
+        "height": 168,
         "visible": false,
         "resizable": false,
         "alwaysOnTop": true,
