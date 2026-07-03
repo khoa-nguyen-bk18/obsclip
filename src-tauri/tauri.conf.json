@@ -45,6 +45,10 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "resources": {
+      "resources/tessdata/eng.traineddata": "tessdata/eng.traineddata",
+      "resources/tessdata_manifest.json": "tessdata_manifest.json"
+    }
   }
 }
