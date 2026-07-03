@@ -71,10 +71,12 @@ jobs:
       # Tesseract (kreuzberg-tesseract) uses std::filesystem, which requires macOS 10.15+
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.platform == 'macos-latest' && '10.15' || '' }}
       CMAKE_OSX_DEPLOYMENT_TARGET: ${{ matrix.platform == 'macos-latest' && '10.15' || '' }}
+      CXXFLAGS: ${{ matrix.platform == 'macos-latest' && '-mmacosx-version-min=10.15' || '' }}
+      CFLAGS: ${{ matrix.platform == 'macos-latest' && '-mmacosx-version-min=10.15' || '' }}
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ needs.prepare.outputs.tag }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || needs.prepare.outputs.tag }}
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -91,6 +93,11 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: ./src-tauri -> target
+          shared-key: macos-deploy-10.15
+
+      - name: Clear stale Tesseract build cache
+        if: matrix.platform == 'macos-latest'
+        run: rm -rf src-tauri/target/aarch64-apple-darwin/kreuzberg-tesseract-cache
 
       - name: Install CMake
         uses: lukka/get-cmake@latest
