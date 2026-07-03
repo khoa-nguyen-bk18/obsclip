@@ -1,5 +1,6 @@
 pub mod annotation;
 pub mod clip;
+pub mod ocr;
 pub mod clipboard;
 pub mod config;
 #[cfg(target_os = "macos")]

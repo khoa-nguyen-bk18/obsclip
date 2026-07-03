@@ -74,3 +74,7 @@ path = "tests/clip_service.rs"
 [[test]]
 name = "live_clip"
 path = "tests/live_clip.rs"
+
+[[test]]
+name = "ocr_languages"
+path = "tests/ocr_languages.rs"
