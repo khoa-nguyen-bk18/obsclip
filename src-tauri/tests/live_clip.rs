@@ -17,6 +17,12 @@ fn live_clip_text_to_daily_note() {
         text_format: TextFormat::Timestamped,
         obsidian_json: obsidian_config_path(),
         annotation: None,
+        image_ocr: false,
+        ocr_languages: vec!["eng".into()],
+        tessdata_dir: obsclip_lib::platform::tessdata_dir(),
+        tessdata_prefix: obsclip_lib::platform::tessdata_prefix(),
+        bundled_eng: obsclip_lib::platform::bundled_eng_traineddata(),
+        ocr_health: None,
     })
     .expect("clip to real vault should succeed");
 

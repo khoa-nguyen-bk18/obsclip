@@ -158,10 +158,16 @@ fn finish_clip(app: &AppHandle, session_id: u64, annotation: Option<String>) {
         text_format: pending.config.text_format.clone(),
         obsidian_json,
         annotation,
+        image_ocr: pending.config.image_ocr,
+        ocr_languages: pending.config.ocr_languages.clone(),
+        tessdata_dir: platform::tessdata_dir(),
+        tessdata_prefix: platform::tessdata_prefix(),
+        bundled_eng: platform::bundled_eng_traineddata(),
+        ocr_health: None,
     });
 
     match result {
-        Ok(()) => tray::flash_tray_success(app),
+        Ok(_) => tray::flash_tray_success(app),
         Err(e) => {
             eprintln!("Clip failed: {e}");
             tray::flash_tray_error(app);

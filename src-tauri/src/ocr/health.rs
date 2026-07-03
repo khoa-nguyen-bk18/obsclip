@@ -8,6 +8,7 @@ pub struct OcrHealth {
     pub fix: Option<String>,
 }
 
+#[derive(Debug)]
 pub struct OcrHealthState(pub Mutex<OcrHealth>);
 
 impl OcrHealthState {

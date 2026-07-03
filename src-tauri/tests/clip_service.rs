@@ -50,6 +50,12 @@ fn appends_text_to_existing_daily_note() {
         text_format: TextFormat::Timestamped,
         obsidian_json: PathBuf::from("/tmp/nonexistent-obsidian.json"),
         annotation: None,
+        image_ocr: false,
+        ocr_languages: vec!["eng".into()],
+        tessdata_dir: PathBuf::from("/tmp/nonexistent-tessdata"),
+        tessdata_prefix: PathBuf::from("/tmp"),
+        bundled_eng: PathBuf::from("/tmp/eng.traineddata"),
+        ocr_health: None,
     })
     .unwrap();
 

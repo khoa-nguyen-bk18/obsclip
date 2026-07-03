@@ -89,8 +89,14 @@ pub fn handle_clip(app: &AppHandle) {
         text_format: config.text_format,
         obsidian_json,
         annotation: None,
+        image_ocr: config.image_ocr,
+        ocr_languages: config.ocr_languages,
+        tessdata_dir: platform::tessdata_dir(),
+        tessdata_prefix: platform::tessdata_prefix(),
+        bundled_eng: platform::bundled_eng_traineddata(),
+        ocr_health: None,
     }) {
-        Ok(()) => flash_tray_success(app),
+        Ok(_) => flash_tray_success(app),
         Err(e) => {
             eprintln!("Clip failed: {e}");
             flash_tray_error(app);
