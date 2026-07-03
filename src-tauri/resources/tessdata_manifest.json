@@ -1,0 +1,518 @@
+[
+  {
+    "code": "afr",
+    "name": "afr"
+  },
+  {
+    "code": "amh",
+    "name": "amh"
+  },
+  {
+    "code": "ara",
+    "name": "ara"
+  },
+  {
+    "code": "asm",
+    "name": "asm"
+  },
+  {
+    "code": "aze",
+    "name": "aze"
+  },
+  {
+    "code": "aze_cyrl",
+    "name": "aze_cyrl"
+  },
+  {
+    "code": "bel",
+    "name": "bel"
+  },
+  {
+    "code": "ben",
+    "name": "ben"
+  },
+  {
+    "code": "bod",
+    "name": "bod"
+  },
+  {
+    "code": "bos",
+    "name": "bos"
+  },
+  {
+    "code": "bre",
+    "name": "bre"
+  },
+  {
+    "code": "bul",
+    "name": "bul"
+  },
+  {
+    "code": "cat",
+    "name": "cat"
+  },
+  {
+    "code": "ceb",
+    "name": "ceb"
+  },
+  {
+    "code": "ces",
+    "name": "ces"
+  },
+  {
+    "code": "chi_sim",
+    "name": "chi_sim"
+  },
+  {
+    "code": "chi_sim_vert",
+    "name": "chi_sim_vert"
+  },
+  {
+    "code": "chi_tra",
+    "name": "chi_tra"
+  },
+  {
+    "code": "chi_tra_vert",
+    "name": "chi_tra_vert"
+  },
+  {
+    "code": "chr",
+    "name": "chr"
+  },
+  {
+    "code": "cos",
+    "name": "cos"
+  },
+  {
+    "code": "cym",
+    "name": "cym"
+  },
+  {
+    "code": "dan",
+    "name": "dan"
+  },
+  {
+    "code": "dan_frak",
+    "name": "dan_frak"
+  },
+  {
+    "code": "deu",
+    "name": "deu"
+  },
+  {
+    "code": "deu_frak",
+    "name": "deu_frak"
+  },
+  {
+    "code": "deu_latf",
+    "name": "deu_latf"
+  },
+  {
+    "code": "div",
+    "name": "div"
+  },
+  {
+    "code": "dzo",
+    "name": "dzo"
+  },
+  {
+    "code": "ell",
+    "name": "ell"
+  },
+  {
+    "code": "eng",
+    "name": "eng"
+  },
+  {
+    "code": "enm",
+    "name": "enm"
+  },
+  {
+    "code": "epo",
+    "name": "epo"
+  },
+  {
+    "code": "equ",
+    "name": "equ"
+  },
+  {
+    "code": "est",
+    "name": "est"
+  },
+  {
+    "code": "eus",
+    "name": "eus"
+  },
+  {
+    "code": "fao",
+    "name": "fao"
+  },
+  {
+    "code": "fas",
+    "name": "fas"
+  },
+  {
+    "code": "fil",
+    "name": "fil"
+  },
+  {
+    "code": "fin",
+    "name": "fin"
+  },
+  {
+    "code": "fra",
+    "name": "fra"
+  },
+  {
+    "code": "frm",
+    "name": "frm"
+  },
+  {
+    "code": "fry",
+    "name": "fry"
+  },
+  {
+    "code": "gla",
+    "name": "gla"
+  },
+  {
+    "code": "gle",
+    "name": "gle"
+  },
+  {
+    "code": "glg",
+    "name": "glg"
+  },
+  {
+    "code": "grc",
+    "name": "grc"
+  },
+  {
+    "code": "guj",
+    "name": "guj"
+  },
+  {
+    "code": "hat",
+    "name": "hat"
+  },
+  {
+    "code": "heb",
+    "name": "heb"
+  },
+  {
+    "code": "hin",
+    "name": "hin"
+  },
+  {
+    "code": "hrv",
+    "name": "hrv"
+  },
+  {
+    "code": "hun",
+    "name": "hun"
+  },
+  {
+    "code": "hye",
+    "name": "hye"
+  },
+  {
+    "code": "iku",
+    "name": "iku"
+  },
+  {
+    "code": "ind",
+    "name": "ind"
+  },
+  {
+    "code": "isl",
+    "name": "isl"
+  },
+  {
+    "code": "ita",
+    "name": "ita"
+  },
+  {
+    "code": "ita_old",
+    "name": "ita_old"
+  },
+  {
+    "code": "jav",
+    "name": "jav"
+  },
+  {
+    "code": "jpn",
+    "name": "jpn"
+  },
+  {
+    "code": "jpn_vert",
+    "name": "jpn_vert"
+  },
+  {
+    "code": "kan",
+    "name": "kan"
+  },
+  {
+    "code": "kat",
+    "name": "kat"
+  },
+  {
+    "code": "kat_old",
+    "name": "kat_old"
+  },
+  {
+    "code": "kaz",
+    "name": "kaz"
+  },
+  {
+    "code": "khm",
+    "name": "khm"
+  },
+  {
+    "code": "kir",
+    "name": "kir"
+  },
+  {
+    "code": "kmr",
+    "name": "kmr"
+  },
+  {
+    "code": "kor",
+    "name": "kor"
+  },
+  {
+    "code": "kor_vert",
+    "name": "kor_vert"
+  },
+  {
+    "code": "lao",
+    "name": "lao"
+  },
+  {
+    "code": "lat",
+    "name": "lat"
+  },
+  {
+    "code": "lav",
+    "name": "lav"
+  },
+  {
+    "code": "lit",
+    "name": "lit"
+  },
+  {
+    "code": "ltz",
+    "name": "ltz"
+  },
+  {
+    "code": "mal",
+    "name": "mal"
+  },
+  {
+    "code": "mar",
+    "name": "mar"
+  },
+  {
+    "code": "mkd",
+    "name": "mkd"
+  },
+  {
+    "code": "mlt",
+    "name": "mlt"
+  },
+  {
+    "code": "mon",
+    "name": "mon"
+  },
+  {
+    "code": "mri",
+    "name": "mri"
+  },
+  {
+    "code": "msa",
+    "name": "msa"
+  },
+  {
+    "code": "mya",
+    "name": "mya"
+  },
+  {
+    "code": "nep",
+    "name": "nep"
+  },
+  {
+    "code": "nld",
+    "name": "nld"
+  },
+  {
+    "code": "nor",
+    "name": "nor"
+  },
+  {
+    "code": "oci",
+    "name": "oci"
+  },
+  {
+    "code": "ori",
+    "name": "ori"
+  },
+  {
+    "code": "osd",
+    "name": "osd"
+  },
+  {
+    "code": "pan",
+    "name": "pan"
+  },
+  {
+    "code": "pol",
+    "name": "pol"
+  },
+  {
+    "code": "por",
+    "name": "por"
+  },
+  {
+    "code": "pus",
+    "name": "pus"
+  },
+  {
+    "code": "que",
+    "name": "que"
+  },
+  {
+    "code": "ron",
+    "name": "ron"
+  },
+  {
+    "code": "rus",
+    "name": "rus"
+  },
+  {
+    "code": "san",
+    "name": "san"
+  },
+  {
+    "code": "sin",
+    "name": "sin"
+  },
+  {
+    "code": "slk",
+    "name": "slk"
+  },
+  {
+    "code": "slk_frak",
+    "name": "slk_frak"
+  },
+  {
+    "code": "slv",
+    "name": "slv"
+  },
+  {
+    "code": "snd",
+    "name": "snd"
+  },
+  {
+    "code": "spa",
+    "name": "spa"
+  },
+  {
+    "code": "spa_old",
+    "name": "spa_old"
+  },
+  {
+    "code": "sqi",
+    "name": "sqi"
+  },
+  {
+    "code": "srp",
+    "name": "srp"
+  },
+  {
+    "code": "srp_latn",
+    "name": "srp_latn"
+  },
+  {
+    "code": "sun",
+    "name": "sun"
+  },
+  {
+    "code": "swa",
+    "name": "swa"
+  },
+  {
+    "code": "swe",
+    "name": "swe"
+  },
+  {
+    "code": "syr",
+    "name": "syr"
+  },
+  {
+    "code": "tam",
+    "name": "tam"
+  },
+  {
+    "code": "tat",
+    "name": "tat"
+  },
+  {
+    "code": "tel",
+    "name": "tel"
+  },
+  {
+    "code": "tgk",
+    "name": "tgk"
+  },
+  {
+    "code": "tgl",
+    "name": "tgl"
+  },
+  {
+    "code": "tha",
+    "name": "tha"
+  },
+  {
+    "code": "tir",
+    "name": "tir"
+  },
+  {
+    "code": "ton",
+    "name": "ton"
+  },
+  {
+    "code": "tur",
+    "name": "tur"
+  },
+  {
+    "code": "uig",
+    "name": "uig"
+  },
+  {
+    "code": "ukr",
+    "name": "ukr"
+  },
+  {
+    "code": "urd",
+    "name": "urd"
+  },
+  {
+    "code": "uzb",
+    "name": "uzb"
+  },
+  {
+    "code": "uzb_cyrl",
+    "name": "uzb_cyrl"
+  },
+  {
+    "code": "vie",
+    "name": "vie"
+  },
+  {
+    "code": "yid",
+    "name": "yid"
+  },
+  {
+    "code": "yor",
+    "name": "yor"
+  }
+]

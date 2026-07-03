@@ -16,7 +16,7 @@
         "label": "settings",
         "title": "Obsclip Settings",
         "width": 420,
-        "height": 420,
+        "height": 560,
         "visible": false,
         "resizable": false
       },
@@ -25,9 +25,21 @@
         "title": "Add note",
         "url": "annotation.html",
         "width": 380,
-        "height": 148,
+        "height": 168,
         "visible": false,
         "resizable": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true
+      },
+      {
+        "label": "toast",
+        "title": "",
+        "url": "toast.html",
+        "width": 320,
+        "height": 56,
+        "visible": false,
+        "resizable": false,
+        "decorations": false,
         "alwaysOnTop": true,
         "skipTaskbar": true
       }
@@ -45,6 +57,10 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "resources": {
+      "resources/tessdata/eng.traineddata": "tessdata/eng.traineddata",
+      "resources/tessdata_manifest.json": "tessdata_manifest.json"
+    }
   }
 }

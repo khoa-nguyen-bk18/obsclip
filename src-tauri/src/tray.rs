@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::time::Duration;
 
 use tauri::{
@@ -9,6 +10,8 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 
 use crate::annotation;
 use crate::clip::service::{run_clip, ClipInput};
+use crate::ocr::health::OcrHealthState;
+use crate::toast;
 use crate::clipboard::{read_clipboard, ClipboardContent};
 use crate::config::AppConfig;
 use crate::platform;
@@ -82,6 +85,7 @@ pub fn handle_clip(app: &AppHandle) {
         return;
     }
 
+    let app_state = app.state::<AppState>();
     let obsidian_json = platform::obsidian_config_path();
     match run_clip(ClipInput {
         content,
@@ -89,8 +93,19 @@ pub fn handle_clip(app: &AppHandle) {
         text_format: config.text_format,
         obsidian_json,
         annotation: None,
+        image_ocr: config.image_ocr,
+        ocr_languages: config.ocr_languages,
+        tessdata_dir: platform::tessdata_dir(),
+        tessdata_prefix: platform::tessdata_prefix(),
+        bundled_eng: app_state.bundled_eng.clone(),
+        ocr_health: Some(app.state::<Arc<OcrHealthState>>().inner().clone()),
     }) {
-        Ok(()) => flash_tray_success(app),
+        Ok(outcome) => {
+            if outcome.ocr_toast {
+                toast::show_ocr_failure_toast(app);
+            }
+            flash_tray_success(app);
+        }
         Err(e) => {
             eprintln!("Clip failed: {e}");
             flash_tray_error(app);
