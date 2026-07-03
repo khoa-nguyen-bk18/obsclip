@@ -16,7 +16,7 @@
         "label": "settings",
         "title": "Obsclip Settings",
         "width": 420,
-        "height": 420,
+        "height": 560,
         "visible": false,
         "resizable": false
       },

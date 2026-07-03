@@ -156,6 +156,95 @@ button:disabled {
   color: #b42318;
 }
 
+.hidden {
+  display: none;
+}
+
+.ocr-banner {
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #f0c040;
+  border-radius: 6px;
+  background: #fff8e6;
+  color: #7a4f01;
+  font-size: 0.85rem;
+}
+
+.ocr-banner p {
+  margin: 0;
+}
+
+.ocr-banner-fix {
+  margin-top: 0.35rem !important;
+  color: #8a5a00;
+}
+
+.ocr-lang-list {
+  max-height: 180px;
+  overflow: auto;
+  margin-top: 0.5rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.ocr-lang-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid #eee;
+}
+
+.ocr-lang-row:last-child {
+  border-bottom: none;
+}
+
+.ocr-lang-checkbox {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.ocr-lang-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ocr-badge {
+  flex-shrink: 0;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.ocr-badge-bundled {
+  background: #e6f4ea;
+  color: #1e6b3a;
+}
+
+.ocr-badge-installed {
+  background: #e8f0f8;
+  color: #1a5276;
+}
+
+.ocr-badge-not-downloaded {
+  background: #f5efe6;
+  color: #8a5a00;
+}
+
+.ocr-lang-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.35rem;
+}
+
+.ocr-lang-actions button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f0f0f0;
@@ -195,5 +284,30 @@ button:disabled {
   kbd {
     background: #333;
     border-color: #555;
+  }
+
+  .ocr-banner {
+    background: #3d2e14;
+    border-color: #8a6914;
+    color: #f5d98e;
+  }
+
+  .ocr-banner-fix {
+    color: #d4b86a;
+  }
+
+  .ocr-badge-bundled {
+    background: #1e3a2f;
+    color: #7dcea0;
+  }
+
+  .ocr-badge-installed {
+    background: #1e2f3a;
+    color: #7db8ce;
+  }
+
+  .ocr-badge-not-downloaded {
+    background: #3a2a1e;
+    color: #ceaa7d;
   }
 }

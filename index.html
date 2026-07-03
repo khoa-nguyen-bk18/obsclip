@@ -77,6 +77,29 @@
         </fieldset>
 
         <fieldset>
+          <legend>Image OCR</legend>
+          <label class="checkbox">
+            <input type="checkbox" id="image-ocr" checked />
+            Extract text from images
+          </label>
+          <div id="ocr-health-banner" class="ocr-banner hidden" role="alert"></div>
+          <label class="field">
+            <span>Search languages</span>
+            <input
+              type="search"
+              id="ocr-lang-search"
+              placeholder="Filter by name or code"
+              autocomplete="off"
+            />
+          </label>
+          <p class="hint">
+            Select up to two languages. English is bundled; others download on
+            demand.
+          </p>
+          <div id="ocr-lang-list" class="ocr-lang-list"></div>
+        </fieldset>
+
+        <fieldset>
           <legend>Text format</legend>
           <label class="field">
             <span>Format</span>
