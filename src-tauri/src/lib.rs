@@ -32,6 +32,11 @@ fn get_config(state: tauri::State<AppState>) -> AppConfig {
 }
 
 #[tauri::command]
+fn get_ocr_health(state: tauri::State<ocr::health::OcrHealthState>) -> ocr::health::OcrHealth {
+    state.snapshot()
+}
+
+#[tauri::command]
 fn get_resolved_vault_path(state: tauri::State<AppState>) -> ResolvedVault {
     let config = state.config.lock().unwrap();
     resolve_effective_vault(
@@ -106,11 +111,13 @@ pub fn run() {
             tray_icons: tray_icons.clone(),
         })
         .manage(annotation::AnnotationState::new())
+        .manage(ocr::health::OcrHealthState::new())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             get_config,
+            get_ocr_health,
             get_resolved_vault_path,
             validate_obsidian_vault,
             save_config,
