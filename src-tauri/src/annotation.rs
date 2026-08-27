@@ -106,15 +106,21 @@ pub fn submit_annotation(app: AppHandle, text: String) -> Result<(), String> {
     Ok(())
 }
 
-#[tauri::command]
-pub fn cancel_annotation(app: AppHandle) -> Result<(), String> {
+pub fn cancel_if_open(app: &AppHandle) {
     let state = app.state::<AnnotationState>();
     let id = state.session_id.load(Ordering::SeqCst);
     if state.completed.swap(true, Ordering::SeqCst) {
-        return Ok(());
+        if let Some(window) = app.get_webview_window(ANNOTATION_WINDOW_LABEL) {
+            let _ = window.hide();
+        }
+        return;
     }
+    abandon_clip(app, id);
+}
 
-    abandon_clip(&app, id);
+#[tauri::command]
+pub fn cancel_annotation(app: AppHandle) -> Result<(), String> {
+    cancel_if_open(&app);
     Ok(())
 }
 
@@ -192,13 +198,6 @@ pub fn handle_annotation_window_event(window: &Window, event: &WindowEvent) {
 
     if let WindowEvent::CloseRequested { api, .. } = event {
         api.prevent_close();
-        let app = window.app_handle();
-        let state = app.state::<AnnotationState>();
-        let id = state.session_id.load(Ordering::SeqCst);
-        if state.completed.swap(true, Ordering::SeqCst) {
-            let _ = window.hide();
-        } else {
-            abandon_clip(app, id);
-        }
+        cancel_if_open(window.app_handle());
     }
 }

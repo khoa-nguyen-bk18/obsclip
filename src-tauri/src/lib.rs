@@ -85,7 +85,13 @@ fn save_config(
     config: AppConfig,
 ) -> Result<(), String> {
     ocr::languages::validate_ocr_languages(&config.ocr_languages)?;
-    let old_shortcut = state.config.lock().unwrap().shortcut.clone();
+    if config.write_shortcut_conflicts_with_clip() {
+        return Err("Clip and write shortcuts must be different.".into());
+    }
+    let (old_shortcut, _old_write_shortcut) = {
+        let current = state.config.lock().unwrap();
+        (current.shortcut.clone(), current.write_shortcut.clone())
+    };
     config
         .save(&obsclip_config_path())
         .map_err(|e| e.to_string())?;
@@ -136,6 +142,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .manage(annotation::AnnotationState::new())
+        .manage(compose::ComposeState::new())
         .manage(Arc::new(ocr::health::OcrHealthState::new()))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
@@ -151,11 +158,14 @@ pub fn run() {
             save_config,
             pick_vault_folder,
             annotation::submit_annotation,
-            annotation::cancel_annotation
+            annotation::cancel_annotation,
+            compose::submit_compose,
+            compose::cancel_compose
         ])
         .on_window_event(|window, event| {
             tray::handle_settings_window_event(window, event);
             annotation::handle_annotation_window_event(window, event);
+            compose::handle_compose_window_event(window, event);
         })
         .setup(move |app| {
             #[cfg(target_os = "macos")]
