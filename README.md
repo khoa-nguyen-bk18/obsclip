@@ -7,6 +7,7 @@ Obsclip is a small menu-bar / system-tray utility that appends your current clip
 ## Features
 
 - **One-action clip** — global shortcut or tray menu
+- **Write to daily note** — global shortcut or tray menu opens a multiline box; typed text is appended with the same text format as clipboard clips
 - **Text and images** — images are saved to your vault attachment folder and linked with `![[...]]`
 - **Image OCR** — optionally extract text from clipboard images and append it indented under the image link (offline, bundled Tesseract)
 - **Obsidian-aware** — reads `obsidian.json`, daily-notes config, and attachment folder from `.obsidian/`
@@ -173,6 +174,8 @@ npm run tauri dev
 3. If **Prompt to add a note** is enabled in settings, a small dialog appears with a one-line preview of what will be appended.
 4. Obsclip appends to today's daily note (creating it from your template if needed).
 
+To type a note instead of clipping the clipboard, press the write shortcut or choose **Write to daily note**. Enter starts a new line; `⌘↵` / `Ctrl+↵` inserts; Esc cancels. Empty submit closes without writing.
+
 ### Optional note dialog
 
 When enabled in settings, clipping opens a compact dialog with:
@@ -197,9 +200,17 @@ With the setting disabled, clipping works as before — no dialog, immediate app
 | macOS | `⌘⇧V` |
 | Windows | `Ctrl+Shift+V` |
 
+### Default write shortcut
+
+| Platform | Shortcut |
+|----------|----------|
+| macOS | `⌘⇧N` |
+| Windows | `Ctrl+Shift+N` |
+
 ### Tray menu
 
 - **Clip to daily note** — append clipboard to today's note
+- **Write to daily note** — open compose dialog to type and append text
 - **Settings…** — open the settings window
 - **Quit** — exit Obsclip
 
@@ -217,6 +228,7 @@ Open **Settings…** from the tray menu:
 |---------|-------------|
 | **Vault** | Shows the **active vault path** Obsclip is using (Obsidian default or your override). Use **Change…** to pick a folder, or **Use Obsidian default** to follow Obsidian's active vault. Settings save automatically — there is no Save button. |
 | **Global shortcut** | Three pickers: primary modifier, extra modifier, and key (with live preview) |
+| **Write shortcut** | Same three pickers for the compose dialog (default `⌘⇧N` / `Ctrl+Shift+N`) |
 | **Prompt to add a note** | When enabled, show the optional note dialog before each clip |
 | **Text format** | Timestamped (default), blockquote, bullet, or checkbox |
 | **Extract text from images** | When enabled (default), run OCR on clipboard images and append recognized text indented under the image link. If OCR fails, the image still clips; a brief toast appears and Settings shows the error with a suggested fix. |
@@ -290,12 +302,14 @@ If no vault can be resolved, Obsclip shows a setup dialog at launch and displays
 ```
 src-tauri/src/
   annotation.rs  # optional note dialog flow
+  compose.rs     # write-to-daily-note compose dialog flow
   clip/          # format, image save, clip orchestration
   clipboard/     # read text/image from OS clipboard
   vault/         # Obsidian config + daily note paths
   tray.rs        # menu bar / tray UI
 src/
   annotation.ts  # note dialog UI
+  compose.ts     # compose dialog UI
 docs/screenshots/  # README images
 ```
 
