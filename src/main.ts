@@ -12,6 +12,7 @@ type LanguageStatus = "bundled" | "installed" | "not_downloaded";
 interface AppConfig {
   vault_path: string | null;
   shortcut: string;
+  write_shortcut: string;
   text_format: TextFormat;
   annotation_prompt: boolean;
   image_ocr: boolean;
@@ -42,6 +43,10 @@ let shortcutPrimaryEl: HTMLSelectElement;
 let shortcutSecondaryEl: HTMLSelectElement;
 let shortcutKeyEl: HTMLSelectElement;
 let shortcutPreviewEl: HTMLElement;
+let writeShortcutPrimaryEl: HTMLSelectElement;
+let writeShortcutSecondaryEl: HTMLSelectElement;
+let writeShortcutKeyEl: HTMLSelectElement;
+let writeShortcutPreviewEl: HTMLElement;
 let textFormatEl: HTMLSelectElement;
 let annotationPromptEl: HTMLInputElement;
 let imageOcrEl: HTMLInputElement;
@@ -90,8 +95,8 @@ async function refreshVaultDisplay() {
   }
 }
 
-function populateKeyOptions() {
-  shortcutKeyEl.replaceChildren(
+function populateKeySelect(selectEl: HTMLSelectElement) {
+  selectEl.replaceChildren(
     ...LETTERS.map((letter) => {
       const option = document.createElement("option");
       option.value = letter;
@@ -99,6 +104,11 @@ function populateKeyOptions() {
       return option;
     }),
   );
+}
+
+function populateKeyOptions() {
+  populateKeySelect(shortcutKeyEl);
+  populateKeySelect(writeShortcutKeyEl);
 }
 
 function shortcutFromForm(): string {
@@ -122,10 +132,42 @@ function updateShortcutPreview() {
   shortcutPreviewEl.textContent = formatShortcutPreview(shortcutFromForm());
 }
 
+function writeShortcutFromForm(): string {
+  const parts: ShortcutParts = {
+    primary: writeShortcutPrimaryEl.value as ShortcutParts["primary"],
+    secondary: writeShortcutSecondaryEl.value as ShortcutParts["secondary"],
+    key: writeShortcutKeyEl.value,
+  };
+  return buildShortcut(parts);
+}
+
+function applyWriteShortcutToForm(shortcut: string) {
+  const parts = parseShortcut(shortcut);
+  writeShortcutPrimaryEl.value = parts.primary;
+  writeShortcutSecondaryEl.value = parts.secondary;
+  writeShortcutKeyEl.value = parts.key;
+  updateWriteShortcutPreview();
+}
+
+function updateWriteShortcutPreview() {
+  writeShortcutPreviewEl.textContent = formatShortcutPreview(writeShortcutFromForm());
+}
+
+function validateShortcutParts(parts: ShortcutParts, label: string): string | null {
+  if (parts.primary !== "None" && parts.secondary !== "None" && parts.primary === parts.secondary) {
+    return "Choose different modifiers.";
+  }
+  if (parts.primary === "None" && parts.secondary === "None") {
+    return `Pick at least one modifier for the ${label} shortcut.`;
+  }
+  return null;
+}
+
 function configFromForm(): AppConfig {
   return {
     vault_path: useDefaultEl.checked ? null : savedCustomVaultPath,
     shortcut: shortcutFromForm(),
+    write_shortcut: writeShortcutFromForm(),
     text_format: textFormatEl.value as TextFormat,
     annotation_prompt: annotationPromptEl.checked,
     image_ocr: imageOcrEl.checked,
@@ -138,6 +180,7 @@ function applyConfig(config: AppConfig) {
   useDefaultEl.checked = useDefault;
   savedCustomVaultPath = config.vault_path;
   applyShortcutToForm(config.shortcut);
+  applyWriteShortcutToForm(config.write_shortcut);
   textFormatEl.value = config.text_format;
   annotationPromptEl.checked = config.annotation_prompt;
   imageOcrEl.checked = config.image_ocr;
@@ -318,26 +361,40 @@ async function loadConfig() {
 
 async function saveConfig() {
   let shortcut: string;
-  let parts: ShortcutParts;
+  let writeShortcut: string;
+  let clipParts: ShortcutParts;
+  let writeParts: ShortcutParts;
   try {
-    parts = {
+    clipParts = {
       primary: shortcutPrimaryEl.value as ShortcutParts["primary"],
       secondary: shortcutSecondaryEl.value as ShortcutParts["secondary"],
       key: shortcutKeyEl.value,
     };
-    shortcut = buildShortcut(parts);
+    writeParts = {
+      primary: writeShortcutPrimaryEl.value as ShortcutParts["primary"],
+      secondary: writeShortcutSecondaryEl.value as ShortcutParts["secondary"],
+      key: writeShortcutKeyEl.value,
+    };
+    shortcut = buildShortcut(clipParts);
+    writeShortcut = buildShortcut(writeParts);
   } catch (error) {
     setStatus(`${error}`, true);
     return;
   }
 
-  if (parts.primary !== "None" && parts.secondary !== "None" && parts.primary === parts.secondary) {
-    setStatus("Choose different modifiers.", true);
+  const clipError = validateShortcutParts(clipParts, "clip");
+  if (clipError) {
+    setStatus(clipError, true);
+    return;
+  }
+  const writeError = validateShortcutParts(writeParts, "write");
+  if (writeError) {
+    setStatus(writeError, true);
     return;
   }
 
-  if (parts.primary === "None" && parts.secondary === "None") {
-    setStatus("Pick at least one modifier for the shortcut.", true);
+  if (shortcut === writeShortcut) {
+    setStatus("Clip and write shortcuts must be different.", true);
     return;
   }
 
@@ -348,6 +405,7 @@ async function saveConfig() {
 
   const config = configFromForm();
   config.shortcut = shortcut;
+  config.write_shortcut = writeShortcut;
 
   try {
     await invoke("save_config", { config });
@@ -397,6 +455,10 @@ window.addEventListener("DOMContentLoaded", () => {
   shortcutSecondaryEl = document.querySelector("#shortcut-secondary")!;
   shortcutKeyEl = document.querySelector("#shortcut-key")!;
   shortcutPreviewEl = document.querySelector("#shortcut-preview")!;
+  writeShortcutPrimaryEl = document.querySelector("#write-shortcut-primary")!;
+  writeShortcutSecondaryEl = document.querySelector("#write-shortcut-secondary")!;
+  writeShortcutKeyEl = document.querySelector("#write-shortcut-key")!;
+  writeShortcutPreviewEl = document.querySelector("#write-shortcut-preview")!;
   textFormatEl = document.querySelector("#text-format")!;
   annotationPromptEl = document.querySelector("#annotation-prompt")!;
   imageOcrEl = document.querySelector("#image-ocr")!;
@@ -419,6 +481,12 @@ window.addEventListener("DOMContentLoaded", () => {
   for (const el of [shortcutPrimaryEl, shortcutSecondaryEl, shortcutKeyEl]) {
     el.addEventListener("change", () => {
       updateShortcutPreview();
+      saveConfig();
+    });
+  }
+  for (const el of [writeShortcutPrimaryEl, writeShortcutSecondaryEl, writeShortcutKeyEl]) {
+    el.addEventListener("change", () => {
+      updateWriteShortcutPreview();
       saveConfig();
     });
   }

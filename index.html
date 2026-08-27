@@ -64,6 +64,35 @@
         </fieldset>
 
         <fieldset>
+          <legend>Write shortcut</legend>
+          <div class="shortcut-fields">
+            <label class="field">
+              <span>Modifier</span>
+              <select id="write-shortcut-primary">
+                <option value="CommandOrControl">⌘ Command / Ctrl</option>
+                <option value="Alt">⌥ Option / Alt</option>
+                <option value="None">None</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Extra</span>
+              <select id="write-shortcut-secondary">
+                <option value="None">None</option>
+                <option value="Shift">⇧ Shift</option>
+                <option value="Alt">⌥ Option / Alt</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Key</span>
+              <select id="write-shortcut-key"></select>
+            </label>
+          </div>
+          <p class="hint">
+            Preview: <kbd id="write-shortcut-preview">⌘⇧N</kbd>
+          </p>
+        </fieldset>
+
+        <fieldset>
           <legend>Clip</legend>
           <label class="checkbox">
             <input type="checkbox" id="annotation-prompt" checked />
