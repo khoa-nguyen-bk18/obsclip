@@ -42,6 +42,8 @@ pub fn start_compose(app: &AppHandle, config: AppConfig) {
 
     let Some(window) = app.get_webview_window(COMPOSE_WINDOW_LABEL) else {
         eprintln!("Compose window not found");
+        abandon(app, id);
+        tray::flash_tray_error(app);
         return;
     };
 

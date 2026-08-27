@@ -92,16 +92,17 @@ fn save_config(
         let current = state.config.lock().unwrap();
         (current.shortcut.clone(), current.write_shortcut.clone())
     };
+    apply_shortcut_rebinds(
+        &app,
+        &old_shortcut,
+        &config.shortcut,
+        &old_write_shortcut,
+        &config.write_shortcut,
+    )?;
     config
         .save(&obsclip_config_path())
         .map_err(|e| e.to_string())?;
-    *state.config.lock().unwrap() = config.clone();
-    rebind_shortcut(&app, &old_shortcut, &config.shortcut, |app| {
-        tray::handle_clip(app)
-    })?;
-    rebind_shortcut(&app, &old_write_shortcut, &config.write_shortcut, |app| {
-        tray::handle_write(app)
-    })?;
+    *state.config.lock().unwrap() = config;
     Ok(())
 }
 
@@ -118,29 +119,93 @@ async fn pick_vault_folder(app: AppHandle) -> Option<String> {
     .flatten()
 }
 
-fn rebind_shortcut(
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum ShortcutBinding {
+    Clip,
+    Write,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum ShortcutRebindOp {
+    Unregister(String),
+    Register {
+        shortcut: String,
+        binding: ShortcutBinding,
+    },
+}
+
+fn plan_shortcut_rebinds(
+    old_clip: &str,
+    new_clip: &str,
+    old_write: &str,
+    new_write: &str,
+) -> Vec<ShortcutRebindOp> {
+    let mut ops = Vec::new();
+
+    if old_clip != new_clip {
+        ops.push(ShortcutRebindOp::Unregister(old_clip.to_string()));
+    }
+    if old_write != new_write {
+        ops.push(ShortcutRebindOp::Unregister(old_write.to_string()));
+    }
+    if old_clip != new_clip {
+        ops.push(ShortcutRebindOp::Register {
+            shortcut: new_clip.to_string(),
+            binding: ShortcutBinding::Clip,
+        });
+    }
+    if old_write != new_write {
+        ops.push(ShortcutRebindOp::Register {
+            shortcut: new_write.to_string(),
+            binding: ShortcutBinding::Write,
+        });
+    }
+
+    ops
+}
+
+fn apply_shortcut_rebinds(
     app: &AppHandle,
-    old_shortcut: &str,
-    new_shortcut: &str,
-    on_press: impl Fn(&AppHandle) + Send + Sync + 'static,
+    old_clip: &str,
+    new_clip: &str,
+    old_write: &str,
+    new_write: &str,
 ) -> Result<(), String> {
-    if old_shortcut == new_shortcut {
-        return Ok(());
-    }
-
     let gs = app.global_shortcut();
-    if gs.is_registered(old_shortcut) {
-        gs.unregister(old_shortcut)
-            .map_err(|e| e.to_string())?;
-    }
 
-    let app_handle = app.clone();
-    gs.on_shortcut(new_shortcut, move |_app, _shortcut, event| {
-        if event.state == ShortcutState::Pressed {
-            on_press(&app_handle);
+    for op in plan_shortcut_rebinds(old_clip, new_clip, old_write, new_write) {
+        match op {
+            ShortcutRebindOp::Unregister(shortcut) => {
+                if gs.is_registered(shortcut.as_str()) {
+                    gs.unregister(shortcut.as_str()).map_err(|e| e.to_string())?;
+                }
+            }
+            ShortcutRebindOp::Register {
+                shortcut,
+                binding: ShortcutBinding::Clip,
+            } => {
+                let app_handle = app.clone();
+                gs.on_shortcut(shortcut.as_str(), move |_app, _shortcut, event| {
+                    if event.state == ShortcutState::Pressed {
+                        tray::handle_clip(&app_handle);
+                    }
+                })
+                .map_err(|e| e.to_string())?;
+            }
+            ShortcutRebindOp::Register {
+                shortcut,
+                binding: ShortcutBinding::Write,
+            } => {
+                let app_handle = app.clone();
+                gs.on_shortcut(shortcut.as_str(), move |_app, _shortcut, event| {
+                    if event.state == ShortcutState::Pressed {
+                        tray::handle_write(&app_handle);
+                    }
+                })
+                .map_err(|e| e.to_string())?;
+            }
         }
-    })
-    .map_err(|e| e.to_string())?;
+    }
 
     Ok(())
 }
@@ -238,4 +303,61 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod shortcut_rebind_tests {
+    use super::{plan_shortcut_rebinds, ShortcutBinding, ShortcutRebindOp};
+
+    fn unregister_keys(ops: &[ShortcutRebindOp]) -> Vec<&str> {
+        ops.iter()
+            .filter_map(|op| match op {
+                ShortcutRebindOp::Unregister(key) => Some(key.as_str()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn register_bindings(ops: &[ShortcutRebindOp]) -> Vec<(&str, ShortcutBinding)> {
+        ops.iter()
+            .filter_map(|op| match op {
+                ShortcutRebindOp::Register { shortcut, binding } => {
+                    Some((shortcut.as_str(), binding.clone()))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn swap_unregisters_both_old_keys_before_registering_new_ones() {
+        let ops = plan_shortcut_rebinds("V", "N", "N", "V");
+        assert_eq!(unregister_keys(&ops), vec!["V", "N"]);
+        assert_eq!(
+            register_bindings(&ops),
+            vec![("N", ShortcutBinding::Clip), ("V", ShortcutBinding::Write)]
+        );
+    }
+
+    #[test]
+    fn clip_and_write_key_changes_unregister_old_before_register_new() {
+        let ops = plan_shortcut_rebinds("V", "N", "N", "B");
+        assert_eq!(unregister_keys(&ops), vec!["V", "N"]);
+        assert_eq!(
+            register_bindings(&ops),
+            vec![("N", ShortcutBinding::Clip), ("B", ShortcutBinding::Write)]
+        );
+    }
+
+    #[test]
+    fn unchanged_shortcuts_produce_no_ops() {
+        assert!(plan_shortcut_rebinds("V", "V", "N", "N").is_empty());
+    }
+
+    #[test]
+    fn single_binding_change_only_touches_that_binding() {
+        let ops = plan_shortcut_rebinds("V", "V", "N", "B");
+        assert_eq!(unregister_keys(&ops), vec!["N"]);
+        assert_eq!(register_bindings(&ops), vec![("B", ShortcutBinding::Write)]);
+    }
 }
