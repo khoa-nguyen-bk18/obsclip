@@ -88,7 +88,7 @@ fn save_config(
     if config.write_shortcut_conflicts_with_clip() {
         return Err("Clip and write shortcuts must be different.".into());
     }
-    let (old_shortcut, _old_write_shortcut) = {
+    let (old_shortcut, old_write_shortcut) = {
         let current = state.config.lock().unwrap();
         (current.shortcut.clone(), current.write_shortcut.clone())
     };
@@ -96,7 +96,12 @@ fn save_config(
         .save(&obsclip_config_path())
         .map_err(|e| e.to_string())?;
     *state.config.lock().unwrap() = config.clone();
-    rebind_shortcut(&app, &old_shortcut, &config.shortcut)?;
+    rebind_shortcut(&app, &old_shortcut, &config.shortcut, |app| {
+        tray::handle_clip(app)
+    })?;
+    rebind_shortcut(&app, &old_write_shortcut, &config.write_shortcut, |app| {
+        tray::handle_write(app)
+    })?;
     Ok(())
 }
 
@@ -113,7 +118,12 @@ async fn pick_vault_folder(app: AppHandle) -> Option<String> {
     .flatten()
 }
 
-fn rebind_shortcut(app: &AppHandle, old_shortcut: &str, new_shortcut: &str) -> Result<(), String> {
+fn rebind_shortcut(
+    app: &AppHandle,
+    old_shortcut: &str,
+    new_shortcut: &str,
+    on_press: impl Fn(&AppHandle) + Send + Sync + 'static,
+) -> Result<(), String> {
     if old_shortcut == new_shortcut {
         return Ok(());
     }
@@ -127,7 +137,7 @@ fn rebind_shortcut(app: &AppHandle, old_shortcut: &str, new_shortcut: &str) -> R
     let app_handle = app.clone();
     gs.on_shortcut(new_shortcut, move |_app, _shortcut, event| {
         if event.state == ShortcutState::Pressed {
-            tray::handle_clip(&app_handle);
+            on_press(&app_handle);
         }
     })
     .map_err(|e| e.to_string())?;
@@ -204,6 +214,19 @@ pub fn run() {
                         tray::handle_clip(&app_handle);
                     }
                 })?;
+
+            let write_shortcut = config.write_shortcut.clone();
+            let write_app = app.handle().clone();
+            if let Err(e) = app.handle().global_shortcut().on_shortcut(
+                write_shortcut.as_str(),
+                move |_app, _shortcut, event| {
+                    if event.state == ShortcutState::Pressed {
+                        tray::handle_write(&write_app);
+                    }
+                },
+            ) {
+                eprintln!("Failed to register write shortcut: {e}");
+            }
 
             let prompt_app = app.handle().clone();
             let prompt_config = config.clone();

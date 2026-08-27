@@ -25,15 +25,17 @@ pub const SETTINGS_WINDOW_LABEL: &str = "settings";
 pub fn setup_tray(app: &App, icons: &TrayIcons) -> tauri::Result<()> {
     let handle = app.handle();
     let clip = MenuItem::with_id(handle, "clip", "Clip to daily note", true, None::<&str>)?;
+    let write = MenuItem::with_id(handle, "write", "Write to daily note", true, None::<&str>)?;
     let settings = MenuItem::with_id(handle, "settings", "Settings…", true, None::<&str>)?;
     let quit = MenuItem::with_id(handle, "quit", "Quit", true, None::<&str>)?;
-    let menu = Menu::with_items(handle, &[&clip, &settings, &quit])?;
+    let menu = Menu::with_items(handle, &[&clip, &write, &settings, &quit])?;
 
     let _tray = TrayIconBuilder::with_id(TRAY_ID)
         .icon(icons.default.clone())
         .menu(&menu)
         .on_menu_event(|app, event| match event.id.as_ref() {
             "clip" => handle_clip(app),
+            "write" => handle_write(app),
             "settings" => show_settings(app),
             "quit" => app.exit(0),
             _ => {}
@@ -81,6 +83,7 @@ pub fn handle_clip(app: &AppHandle) {
     }
 
     if config.annotation_prompt {
+        crate::compose::cancel_if_open(app);
         annotation::start_clip_with_annotation(app, config, content);
         return;
     }
@@ -111,6 +114,20 @@ pub fn handle_clip(app: &AppHandle) {
             flash_tray_error(app);
         }
     }
+}
+
+pub fn handle_write(app: &AppHandle) {
+    let config = match AppConfig::load(&platform::obsclip_config_path()) {
+        Ok(config) => config,
+        Err(e) => {
+            eprintln!("Failed to load config: {e}");
+            flash_tray_error(app);
+            return;
+        }
+    };
+
+    annotation::cancel_if_open(app);
+    crate::compose::start_compose(app, config);
 }
 
 pub fn show_settings(app: &AppHandle) {
