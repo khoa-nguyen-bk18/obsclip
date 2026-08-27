@@ -337,9 +337,9 @@ cargo test --test live_clip -- --nocapture
 
 ```bash
 # Settings + tray menu mockups
-npx playwright screenshot --viewport-size="420,480" \
+npx playwright screenshot --viewport-size="420,680" \
   file://$PWD/docs/screenshots/settings-mockup.html docs/screenshots/settings.png
-npx playwright screenshot --viewport-size="520,220" \
+npx playwright screenshot --viewport-size="520,260" \
   file://$PWD/docs/screenshots/tray-mockup.html docs/screenshots/tray-menu.png
 
 # Tray icon state PNGs
