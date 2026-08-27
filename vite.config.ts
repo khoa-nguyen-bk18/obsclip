@@ -11,6 +11,7 @@ export default defineConfig(async () => ({
       input: {
         main: resolve(__dirname, "index.html"),
         annotation: resolve(__dirname, "annotation.html"),
+        compose: resolve(__dirname, "compose.html"),
         toast: resolve(__dirname, "toast.html"),
       },
     },

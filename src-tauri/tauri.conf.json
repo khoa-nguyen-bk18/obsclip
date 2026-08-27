@@ -16,7 +16,7 @@
         "label": "settings",
         "title": "Obsclip Settings",
         "width": 420,
-        "height": 560,
+        "height": 680,
         "visible": false,
         "resizable": false
       },
@@ -26,6 +26,17 @@
         "url": "annotation.html",
         "width": 380,
         "height": 168,
+        "visible": false,
+        "resizable": false,
+        "alwaysOnTop": true,
+        "skipTaskbar": true
+      },
+      {
+        "label": "compose",
+        "title": "Write to daily note",
+        "url": "compose.html",
+        "width": 380,
+        "height": 220,
         "visible": false,
         "resizable": false,
         "alwaysOnTop": true,

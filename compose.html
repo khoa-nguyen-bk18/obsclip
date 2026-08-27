@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/compose.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Write to daily note</title>
+    <script type="module" src="/src/compose.ts" defer></script>
+  </head>
+
+  <body>
+    <main class="compose">
+      <textarea
+        id="compose-input"
+        placeholder="Write to today's note…"
+        autocomplete="off"
+        spellcheck="true"
+      ></textarea>
+      <p id="compose-hint" class="hint"></p>
+    </main>
+  </body>
+</html>
