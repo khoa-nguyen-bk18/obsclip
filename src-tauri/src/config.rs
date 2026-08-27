@@ -14,6 +14,8 @@ pub enum TextFormat {
 pub struct AppConfig {
     pub vault_path: Option<PathBuf>,
     pub shortcut: String,
+    #[serde(default = "default_write_shortcut")]
+    pub write_shortcut: String,
     pub text_format: TextFormat,
     #[serde(default = "default_annotation_prompt")]
     pub annotation_prompt: bool,
@@ -25,6 +27,10 @@ pub struct AppConfig {
 
 fn default_annotation_prompt() -> bool {
     true
+}
+
+fn default_write_shortcut() -> String {
+    "CommandOrControl+Shift+KeyN".into()
 }
 
 fn default_image_ocr() -> bool {
@@ -40,6 +46,7 @@ impl Default for AppConfig {
         Self {
             vault_path: None,
             shortcut: "CommandOrControl+Shift+KeyV".into(),
+            write_shortcut: "CommandOrControl+Shift+KeyN".into(),
             text_format: TextFormat::Timestamped,
             annotation_prompt: true,
             image_ocr: true,
@@ -64,6 +71,10 @@ impl AppConfig {
         let data = serde_json::to_string_pretty(self)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
         std::fs::write(path, data)
+    }
+
+    pub fn write_shortcut_conflicts_with_clip(&self) -> bool {
+        self.shortcut == self.write_shortcut
     }
 }
 
@@ -116,5 +127,32 @@ mod tests {
         let cfg = AppConfig::load(&path).unwrap();
         assert!(cfg.image_ocr);
         assert_eq!(cfg.ocr_languages, vec!["eng".to_string()]);
+    }
+
+    #[test]
+    fn default_config_includes_write_shortcut() {
+        let cfg = AppConfig::default();
+        assert_eq!(cfg.write_shortcut, "CommandOrControl+Shift+KeyN");
+        assert!(!cfg.write_shortcut_conflicts_with_clip());
+    }
+
+    #[test]
+    fn load_missing_write_shortcut_uses_default() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("config.json");
+        std::fs::write(
+            &path,
+            r#"{"vault_path":null,"shortcut":"CommandOrControl+Shift+KeyV","text_format":"timestamped","annotation_prompt":true}"#,
+        )
+        .unwrap();
+        let cfg = AppConfig::load(&path).unwrap();
+        assert_eq!(cfg.write_shortcut, "CommandOrControl+Shift+KeyN");
+    }
+
+    #[test]
+    fn write_shortcut_conflicts_when_equal_to_clip() {
+        let mut cfg = AppConfig::default();
+        cfg.write_shortcut = cfg.shortcut.clone();
+        assert!(cfg.write_shortcut_conflicts_with_clip());
     }
 }
